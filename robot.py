@@ -3,7 +3,6 @@ import wpilib.drive
 import ctre
 import deadzone
 from constants import constants
-from wpilib._wpilib import Encoder
 
 
 class MyRobot(wpilib.TimedRobot):
