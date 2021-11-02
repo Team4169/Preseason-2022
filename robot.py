@@ -4,6 +4,7 @@ import ctre
 import deadzone
 from constants import constants
 from wpilib._wpilib import Encoder
+import navx
 
 
 class MyRobot(wpilib.TimedRobot):
@@ -34,6 +35,7 @@ class MyRobot(wpilib.TimedRobot):
         self.test_motor = ctre.WPI_TalonSRX(constants["testMotorPort"])
         self.timer = wpilib.Timer()
         self.encoder = wpilib.Encoder(self.front_left_motor)
+        self.gyro = navx.AHRS()
 
     def autonomousInit(self):
         self.timer.reset()
@@ -53,11 +55,15 @@ class MyRobot(wpilib.TimedRobot):
     def teleopPeriodic(self):
         print("The drive X value is: ", self.controller.getX(self.controller.Hand.kLeftHand))
         print("The drive Y value is: ", self.controller.getY(self.controller.Hand.kLeftHand))
+        print("The gyro yaw value is: ", self.gyro.getAngle())
         print("Encoder Value is: ", self.encoder)
+        self.left_turn = self.controller.getTriggerAxis(self.controller.Hand.kLeftHand)
+        self.right_turn = self.controller.getTriggerAxis(self.controller.Hand.kRightHand)
+        self.turn = self.left_turn - self.right_turn
         self.drive.driveCartesian(
             self.controller.getX(self.controller.Hand.kLeftHand),
             self.controller.getY(self.controller.Hand.kLeftHand),
-            self.controller.getY(self.controller.Hand.kRightHand), 0)
+            self.turn, 0)
         isApressed = self.controller.getAButton()
         # print(isApressed)
         isBpressed = self.controller.getBButton()
