@@ -3,5 +3,6 @@ constants = {
     "rearLeftPort": 3,
     "frontRightPort": 11,
     "rearRightPort": 4,
-    "testMotorPort": 10
+    "testMotorPort": 10,
+    "frontLeftEncoder": (0, 1)
 }
