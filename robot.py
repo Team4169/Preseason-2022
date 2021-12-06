@@ -17,11 +17,12 @@ class MyRobot(wpilib.TimedRobot):
   	self.rear_right_motor = ctre.WPI_TalonSRX(constants["rearRightPort"])
   	self.rear_right_motor.setInverted(True)
   	self.right = wpilib.SpeedControllerGroup(self.front_right_motor, self.rear_right_motor)
-    
-    self.drive = wpilib.drive.DifferentialDrive(
-      self.right,
-      self.left
-    )
+	
+	self.drive = wpilib.drive.DifferentialDrive(
+		self.right,
+		self.left
+	)
+	
 	self.controller = wpilib.XboxController(0)
 	self.timer = wpilib.Timer()
 	self.sd = NetworkTables.getTable("SmartDashboard")
