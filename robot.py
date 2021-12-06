@@ -40,7 +40,7 @@ def teleopPeriodic(self):
 	print("The drive X value is: ", self.controller.getX(self.controller.Hand.kLeftHand))
 	print("The drive Y value is: ", self.controller.getY(self.controller.Hand.kLeftHand))
 	print("The gyro Yaw value is: ", self.gyro.getYaw())
-# 	self.sd.putValue("Gyro Yaw", self.gyro.getYaw())
+	self.sd.putValue("Gyro Yaw", self.gyro.getYaw())
 # 	self.drive.driveCartesian(
 # 		self.controller.getX(self.controller.Hand.kLeftHand),
 # 		self.controller.getY(self.controller.Hand.kLeftHand),
