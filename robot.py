@@ -54,8 +54,8 @@ class MyRobot(wpilib.TimedRobot):
 			self.rear_left_motor.set(0.5)
 		if(isXPressed):
 			self.front_right_motor.set(0.5)
-	if(isYPressed):
-		self.rear_right_motor.set(0.5)
+		if(isYPressed):
+			self.rear_right_motor.set(0.5)
 
 if __name__ == "__main__":
 	wpilib.run(MyRobot)
