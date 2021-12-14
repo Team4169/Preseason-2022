@@ -8,12 +8,12 @@ import navx
 class MyRobot(wpilib.TimedRobot):
 	def robotInit(self):
 		self.front_left_motor = ctre.WPI_TalonSRX(constants["frontLeftPort"])
-		self.rear_left_motor = ctre.WPI_TalonSRX(constants["rearLeftPort"])
+		self.rear_left_motor = ctre.WPI_VictorSPX(constants["rearLeftPort"])
   		self.rear_left_motor.setInverted(True)
   		self.left = wpilib.SpeedControllerGroup(self.front_left_motor, self.rear_left_motor)
 		
   		self.front_right_motor = ctre.WPI_TalonSRX(constants["frontRightPort"])
-  		self.rear_right_motor = ctre.WPI_TalonSRX(constants["rearRightPort"])
+  		self.rear_right_motor = ctre.WPI_VictorSPX(constants["rearRightPort"])
   		self.rear_right_motor.setInverted(True)
   		self.right = wpilib.SpeedControllerGroup(self.front_right_motor, self.rear_right_motor)
 		
