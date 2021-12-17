@@ -26,6 +26,8 @@ class MyRobot(wpilib.TimedRobot):
 		self.timer = wpilib.Timer()
 		self.sd = NetworkTables.getTable("SmartDashboard")
 		self.gyro = navx.AHRS.create_i2c()
+		self.front_left_motor.configSelectedFeedbackSensor(ctre.FeedbackDevice.QuadEncoder, 0, 0)
+		self.front_right_motor.configSelectedFeedbackSensor(ctre.FeedbackDevice.QuadEncoder, 0, 0)
 	
 	def autnomousInit(self):
 		self.timer.reset()
@@ -40,10 +42,13 @@ class MyRobot(wpilib.TimedRobot):
 		print("The drive Y value is: ", self.controller.getY(self.controller.Hand.kLeftHand))
 		print("The gyro Yaw value is: ", self.gyro.getYaw())
 		self.sd.putValue("Gyro Yaw", self.gyro.getYaw())
-# 		self.drive.driveCartesian(
-# 		self.controller.getX(self.controller.Hand.kLeftHand),
-# 		self.controller.getY(self.controller.Hand.kLeftHand),
-# 		self.controller.getY(self.controller.Hand.kRightHand), 0)
+		self.sd.putValue("Left Encoder Value", self.front_left_motor.getSelectedSonsorPosition())
+		self.sd.putValue("Right Encoder Value", self.front_right_motor.getSelectedSensorPosition())
+# 		self.drive.arcadeDrive(
+# 			self.controller.getX(self.controller.Hand.kLeftHand),
+# 			self.controller.getY(self.controller.Hand.kLeftHand),
+# 			True
+# 		)
 		isAPressed = self.controller.getAButton()
 		isBPressed = self.controller.getBButton()
 		isXPressed = self.controller.getXButton()
