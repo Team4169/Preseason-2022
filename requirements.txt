@@ -18,7 +18,6 @@ pynetworktables==2021.0.0
 pyntcore==2021.3.1.0
 pyparsing==3.0.6
 pytest==6.2.5
-robotpy-ctre==2021.2.2
 robotpy-hal==2021.3.1.0
 robotpy-halsim-gui==2021.3.1.0
 robotpy-installer==2021.0.3
@@ -27,3 +26,4 @@ robotpy-wpiutil==2021.3.1.0
 six==1.16.0
 toml==0.10.2
 wpilib==2021.3.1.0
+robotpy-ctre==2021.2.2
