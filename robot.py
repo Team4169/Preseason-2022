@@ -5,6 +5,7 @@ from constants import constants
 from networktables import NetworkTables
 import navx
 
+
 class MyRobot(wpilib.TimedRobot):
     def robotInit(self):
         self.front_left_motor = ctre.WPI_TalonSRX(constants["frontLeftPort"])
@@ -32,6 +33,10 @@ class MyRobot(wpilib.TimedRobot):
             ctre.FeedbackDevice.QuadEncoder, 0, 0)
         self.front_right_motor.configSelectedFeedbackSensor(
             ctre.FeedbackDevice.QuadEncoder, 0, 0)
+
+        # LEDserver (Arduino) is on I2C port 100
+        # connected via the RoboRio's "onboard" I2C port
+        self.LEDserver = wpilib.I2C(wpilib.I2C.kOnboard, 100)
 
     def autnomousInit(self):
         self.timer.reset()
@@ -64,13 +69,26 @@ class MyRobot(wpilib.TimedRobot):
         isXPressed = self.controller.getXButton()
         isYPressed = self.controller.getYButton()
         if(isAPressed):
-            self.front_left_motor.set(0.5)
+            #self.front_left_motor.set(0.5)
+            self.sendLEDCommand(1)
         if(isBPressed):
-            self.rear_left_motor.set(0.5)
+            #self.rear_left_motor.set(0.5)
+            self.sendLEDCommand(2)
         if(isXPressed):
-            self.front_right_motor.set(0.5)
+            #self.front_right_motor.set(0.5)
+            self.sendLEDCommand(3)
         if(isYPressed):
-            self.rear_right_motor.set(0.5)
+            #self.rear_right_motor.set(0.5)
+            self.sendLEDCommand(4)
+
+    def sendLEDCommand(self, command):
+        # send the specified command to the LEDserver
+        if self.LEDserver.writeBulk(command):
+            print("Got an error sending command ", command)
+            return True
+        else:
+            print("Success sending command ", command)
+            return False
 
 
 if __name__ == "__main__":
