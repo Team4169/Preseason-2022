@@ -29,10 +29,10 @@ class MyRobot(wpilib.TimedRobot):
         self.timer = wpilib.Timer()
         self.sd = NetworkTables.getTable("SmartDashboard")
         # self.gyro = navx.AHRS.create_i2c()
-        self.front_left_motor.configSelectedFeedbackSensor(
-            ctre.FeedbackDevice.QuadEncoder, 0, 0)
-        self.front_right_motor.configSelectedFeedbackSensor(
-            ctre.FeedbackDevice.QuadEncoder, 0, 0)
+        #self.front_left_motor.configSelectedFeedbackSensor(
+        #    ctre.FeedbackDevice.QuadEncoder, 0, 0)
+        #self.front_right_motor.configSelectedFeedbackSensor(
+        #    ctre.FeedbackDevice.QuadEncoder, 0, 0)
 
         # LEDserver (Arduino) is on I2C port 100
         # connected via the RoboRio's "onboard" I2C port
@@ -55,10 +55,10 @@ class MyRobot(wpilib.TimedRobot):
             self.controller.Hand.kLeftHand))
         # print("The gyro Yaw value is: ", self.gyro.getYaw())
         # self.sd.putValue("Gyro Yaw", self.gyro.getYaw())
-        self.sd.putValue("Left Encoder Value",
-                         self.front_left_motor.getSelectedSonsorPosition())
-        self.sd.putValue("Right Encoder Value",
-                         self.front_right_motor.getSelectedSensorPosition())
+        #self.sd.putValue("Left Encoder Value",
+        #                 self.front_left_motor.getSelectedSonsorPosition())
+        #self.sd.putValue("Right Encoder Value",
+        #                 self.front_right_motor.getSelectedSensorPosition())
 # 		self.drive.arcadeDrive(
 # 			self.controller.getX(self.controller.Hand.kLeftHand),
 # 			self.controller.getY(self.controller.Hand.kLeftHand),
