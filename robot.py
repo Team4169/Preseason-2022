@@ -36,7 +36,7 @@ class MyRobot(wpilib.TimedRobot):
 
         # LEDserver (Arduino) is on I2C port 100
         # connected via the RoboRio's "onboard" I2C port
-        self.LEDserver = wpilib.I2C(wpilib.I2C.kOnboard, 100)
+        self.LEDserver = wpilib.I2C(0, 100)
 
     def autnomousInit(self):
         self.timer.reset()
