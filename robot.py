@@ -3,7 +3,7 @@ import wpilib.drive
 import ctre
 from constants import constants
 from networktables import NetworkTables
-import navx
+# import navx
 
 
 class MyRobot(wpilib.TimedRobot):
@@ -28,7 +28,7 @@ class MyRobot(wpilib.TimedRobot):
         self.controller = wpilib.XboxController(0)
         self.timer = wpilib.Timer()
         self.sd = NetworkTables.getTable("SmartDashboard")
-        self.gyro = navx.AHRS.create_i2c()
+        # self.gyro = navx.AHRS.create_i2c()
         self.front_left_motor.configSelectedFeedbackSensor(
             ctre.FeedbackDevice.QuadEncoder, 0, 0)
         self.front_right_motor.configSelectedFeedbackSensor(
@@ -53,8 +53,8 @@ class MyRobot(wpilib.TimedRobot):
             self.controller.Hand.kLeftHand))
         print("The drive Y value is: ", self.controller.getY(
             self.controller.Hand.kLeftHand))
-        print("The gyro Yaw value is: ", self.gyro.getYaw())
-        self.sd.putValue("Gyro Yaw", self.gyro.getYaw())
+        # print("The gyro Yaw value is: ", self.gyro.getYaw())
+        # self.sd.putValue("Gyro Yaw", self.gyro.getYaw())
         self.sd.putValue("Left Encoder Value",
                          self.front_left_motor.getSelectedSonsorPosition())
         self.sd.putValue("Right Encoder Value",
