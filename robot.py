@@ -70,20 +70,20 @@ class MyRobot(wpilib.TimedRobot):
         isYPressed = self.controller.getYButton()
         if(isAPressed):
             #self.front_left_motor.set(0.5)
-            self.sendLEDCommand("1")
+            self.sendLEDCommand(1)
         if(isBPressed):
             #self.rear_left_motor.set(0.5)
-            self.sendLEDCommand("2")
+            self.sendLEDCommand(2)
         if(isXPressed):
             #self.front_right_motor.set(0.5)
-            self.sendLEDCommand("3")
+            self.sendLEDCommand(3)
         if(isYPressed):
             #self.rear_right_motor.set(0.5)
-            self.sendLEDCommand("4")
+            self.sendLEDCommand(4)
 
     def sendLEDCommand(self, command):
         # send the specified command to the LEDserver
-        if self.LEDserver.writeBulk(command):
+        if self.LEDserver.writeBulk(0, command):
             print("Got an error sending command ", command)
             return True
         else:
