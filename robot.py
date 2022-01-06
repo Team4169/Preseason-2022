@@ -83,7 +83,7 @@ class MyRobot(wpilib.TimedRobot):
 
     def sendLEDCommand(self, command):
         # send the specified command to the LEDserver
-        if self.LEDserver.write(0, command):
+        if self.LEDserver.writeBulk(memoryview(bytes([command]))):
             print("Got an error sending command ", command)
             return True
         else:
