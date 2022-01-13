@@ -7,7 +7,8 @@ from networktables import NetworkTables
 import navx
 
 class MyRobot(wpilib.TimedRobot):
-
+    speed = 0
+    back = False
 
     def robotInit(self):
         """Robot initialization function"""
@@ -33,13 +34,49 @@ class MyRobot(wpilib.TimedRobot):
 
     def teleopInit(self):
         self.myRobot.setSafetyEnabled(True)
+        self.timer.reset()
+        self.timer.start()
+        timer=0
 
     def teleopPeriodic(self):
-	  self.myRobot.tankDrive(
+      global speed
+      global back
+	    self.myRobot.tankDrive(
 	      self.controller.getY(self.controller.Hand.kLeftHand) * -1,
             self.controller.getY(self.controller.Hand.kRightHand) * -1)
-	  )
-           
+	    )
+      speed=abs(speed)
+      #Gradual speed decrease
+      if speed >= 0.05 and self.timer.get()>=timer+0.025:
+        speed=speed-0.05
 
+      #Pull: Stop
+      if self.controller.getYButton(): 
+        speed=0
+      #Bop-It: Increase Speed
+      if self.controller.getXButtonPressed():
+        if speed<=0.9:
+          speed+=0.1
+      #Spin: Reverse Direction
+      if self.conroller.getAButtonPressed(): 
+        back=!back
+      if back:
+        speed=speed*-1
+      #Twist: Left
+      if self.controller.getBButton():  
+        self.right.set(-1*speed)
+        self.left.set(speed)
+      #Flick: Right
+      elif self.controller.getBumper(): 
+        self.left.set(-1*speed)
+        self.right.set(speed)
+      #Else: Streight
+      else:
+        self.right.set(speed)
+        self.left.set(speed)
+      timer=self.time.get()
+      
+      
+      
 if __name__ == "__main__":
     wpilib.run(MyRobot)
