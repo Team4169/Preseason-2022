@@ -35,7 +35,7 @@ class MyRobot(wpilib.TimedRobot):
     def teleopPeriodic(self):
         self.drive.tankDrive(
             self.controller.getY(self.controller.Hand.kLeftHand) * -1,
-            self.controller.getY(self.controller.Hand.kRightHand) * -1)
+            self.controller.getY(self.controller.Hand.kLeftHand) * -1)
 
 
 if __name__ == "__main__":
