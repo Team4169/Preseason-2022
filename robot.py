@@ -7,8 +7,8 @@ from networktables import NetworkTables
 #import navx
 
 class MyRobot(wpilib.TimedRobot):
-	back = False
-	time=0
+	# back = False
+	# time=0
 
 	def robotInit(self):
 		"""Robot initialization function"""
@@ -29,6 +29,8 @@ class MyRobot(wpilib.TimedRobot):
 			self.left
 		)
 		self.speed = 0
+		self.back = False
+		self.time = 0
 
 		# Xbox controller
 		self.controller = wpilib.XboxController(0)
@@ -41,15 +43,15 @@ class MyRobot(wpilib.TimedRobot):
 
 	def teleopPeriodic(self):
 		# global speed
-		global back
-		global time
+		# global back
+		# global time
 		self.drive.tankDrive(
 			self.controller.getY(self.controller.Hand.kLeftHand) * -1,
 			self.controller.getY(self.controller.Hand.kRightHand) * -1
 		)
 		self.speed=abs(self.speed)
 		#Gradual speed decrease
-		if self.speed >= 0.05 and self.timer.get()>=time+0.025:
+		if self.speed >= 0.05 and self.timer.get()>=self.time+0.025:
 			self.speed=self.speed-0.05
 
 		#Pull: Stop
@@ -61,8 +63,8 @@ class MyRobot(wpilib.TimedRobot):
 				self.speed+=0.1
 		#Spin: Reverse Direction
 		if self.controller.getAButtonPressed():
-			back=not back
-		if back:
+			self.back=not self.back
+		if self.back:
 			self.speed= self.speed*-1
 		#Twist: Left
 		if self.controller.getBButton():
@@ -70,8 +72,8 @@ class MyRobot(wpilib.TimedRobot):
 			self.left.set(self.speed)
 		#Flick: Right
 		elif self.controller.getBumper():
-			self.left.set(-1*speed)
-			self.right.set(speed)
+			self.left.set(-1*self.speed)
+			self.right.set(self.speed)
 		#Else: Streight
 		else:
 			self.right.set(self.speed)
