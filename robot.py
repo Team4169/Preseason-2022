@@ -60,7 +60,7 @@ class MyRobot(wpilib.TimedRobot):
 			if self.speed<=0.9:
 				self.speed+=0.1
 		#Spin: Reverse Direction
-		if self.conroller.getAButtonPressed():
+		if self.controller.getAButtonPressed():
 			back=not back
 		if back:
 			self.speed= self.speed*-1
