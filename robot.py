@@ -71,7 +71,7 @@ class MyRobot(wpilib.TimedRobot):
 			self.right.set(-1*self.speed)
 			self.left.set(self.speed)
 		#Flick: Right
-		elif self.controller.getBumper():
+		elif self.controller.getBumper(self.controller.Hand.kLeftHand):
 			self.left.set(-1*self.speed)
 			self.right.set(self.speed)
 		#Else: Streight
