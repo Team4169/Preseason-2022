@@ -33,6 +33,7 @@ class MyRobot(wpilib.TimedRobot):
         pass
 
     def teleopPeriodic(self):
+        # drive in "tank" mode (left stick to left motor; right stick to right motor)
         self.drive.tankDrive(
             self.controller.getY(self.controller.Hand.kLeftHand) * -1,
             self.controller.getY(self.controller.Hand.kLeftHand) * -1)
