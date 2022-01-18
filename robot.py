@@ -3,6 +3,7 @@ import wpilib
 import wpilib.drive
 import ctre
 from constants import constants
+from networktables import NetworkTables
 
 class MyRobot(wpilib.TimedRobot):
 
@@ -27,15 +28,25 @@ class MyRobot(wpilib.TimedRobot):
 
         # Xbox controller
         self.controller = wpilib.XboxController(0)
+        self.sd = NetworkTables.getTable("SmartDashboard")
+        self.front_left_motor.configSelectedFeedbackSensor(ctre.FeedbackDevice.QuadEncoder, 0, 0)
+        self.rear_right_motor.configSelectedFeedbackSensor(ctre.FeedbackDevice.QuadEncoder, 0, 0)
+        self.left_tick_per_foot = 911
+        self.right_tick_per_foot = 610
 
     def teleopInit(self):
         #self.myRobot.setSafetyEnabled(True)
-        pass
+        self.left_enc_init_val = self.front_left_motor.getSelectedSensorPosition()
+        self.right_enc_init_val = self.rear_right_motor.getSelectedSensorPosition()
 
     def teleopPeriodic(self):
         self.drive.tankDrive(
-            self.controller.getY(self.controller.Hand.kLeftHand) * -1,
-            self.controller.getY(self.controller.Hand.kLeftHand) * -1)
+            self.controller.getY(self.controller.Hand.kLeftHand),
+            self.controller.getY(self.controller.Hand.kLeftHand))
+        # print("Left Enc Value: ", self.front_left_motor.getSelectedSensorPosition())
+        # print("Right Enc Value: ", self.rear_right_motor.getSelectedSensorPosition())
+        self.sd.putValue("Left Enc Value", self.front_left_motor.getSelectedSensorPosition() - self.left_enc_init_val)
+        self.sd.putValue("Right Enc Value", self.rear_right_motor.getSelectedSensorPosition() - self.right_enc_init_val)
 
 
 if __name__ == "__main__":
