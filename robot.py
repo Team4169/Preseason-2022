@@ -5,6 +5,7 @@ import ctre
 from constants import constants
 from networktables import NetworkTables
 
+
 class MyRobot(wpilib.TimedRobot):
 
     def robotInit(self):
@@ -38,15 +39,51 @@ class MyRobot(wpilib.TimedRobot):
         #self.myRobot.setSafetyEnabled(True)
         self.left_enc_init_val = self.front_left_motor.getSelectedSensorPosition()
         self.right_enc_init_val = self.rear_right_motor.getSelectedSensorPosition()
+        self.going_to_goal = False
 
     def teleopPeriodic(self):
-        self.drive.tankDrive(
-            self.controller.getY(self.controller.Hand.kLeftHand),
-            self.controller.getY(self.controller.Hand.kLeftHand))
+        # self.drive.arcadeDrive(
+        #     self.controller.getY(self.controller.Hand.kLeftHand),
+        #     self.controller.getY(self.controller.Hand.kRightHand))
         # print("Left Enc Value: ", self.front_left_motor.getSelectedSensorPosition())
         # print("Right Enc Value: ", self.rear_right_motor.getSelectedSensorPosition())
         self.sd.putValue("Left Enc Value", self.front_left_motor.getSelectedSensorPosition() - self.left_enc_init_val)
         self.sd.putValue("Right Enc Value", self.rear_right_motor.getSelectedSensorPosition() - self.right_enc_init_val)
+        if self.controller.getAButton() and not self.going_to_goal:
+            self.cur_left_enc = self.front_left_motor.getSelectedSensorPosition()
+            self.goal_dist = self.cur_left_enc + self.left_tick_per_foot
+            self.going_to_goal = True
+        if self.controller.getBButton() and not self.going_to_goal:
+            self.cur_left_enc = self.front_left_motor.getSelectedSensorPosition()
+            self.goal_dist = self.cur_left_enc + 2 * self.left_tick_per_foot
+            self.going_to_goal = True
+        if self.controller.getXButton() and not self.going_to_goal:
+            self.cur_left_enc = self.front_left_motor.getSelectedSensorPosition()
+            self.goal_dist = self.cur_left_enc - 2 * self.left_tick_per_foot
+            self.going_to_goal = True
+        if self.controller.getYButton() and not self.going_to_goal:
+            self.cur_left_enc = self.front_left_motor.getSelectedSensorPosition()
+            self.goal_dist = self.cur_left_enc - self.left_tick_per_foot
+            self.going_to_goal = True
+        if self.going_to_goal:
+            self.cur_left_enc = self.front_left_motor.getSelectedSensorPosition()
+            if abs(self.cur_left_enc - self.goal_dist) < 100:
+                self.drive.arcadeDrive(
+                    0,
+                    0
+                )
+                self.going_to_goal = False
+            elif self.cur_left_enc > self.goal_dist:
+                self.drive.arcadeDrive(
+                    -0.5,
+                    0
+                )
+            elif self.cur_left_enc < self.goal_dist:
+                self.drive.arcadeDrive(
+                    0.5,
+                    0
+                )
+
 
 
 if __name__ == "__main__":
