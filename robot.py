@@ -5,10 +5,17 @@ import ctre
 from constants import constants
 from networktables import NetworkTables
 import navx
+import cscore
 
 class MyRobot(wpilib.TimedRobot):
     def robotInit(self):
-        wpilib.CameraServer.launch("vision.py:main")
+        wpilib.CameraServer.launch()
+        self.server = cscore.CameraServer.getInstance()
+        self.cam1 = cscore.CameraServer.startAutomaticCapture(0)
+        self.cam2 = cscore.CameraServer.startAutomaticCapture(1)
+        self.outputStream = cs.putVideo("Rectangle", 320, 240)
+        self.cvSink = cs.getVideo()
+
 
         self.front_left_motor = ctre.WPI_TalonSRX(constants["frontLeftPort"])
         self.rear_left_motor = ctre.WPI_VictorSPX(constants["rearLeftPort"])
@@ -51,6 +58,13 @@ class MyRobot(wpilib.TimedRobot):
             self.controller.Hand.kLeftHand))
         print("The drive Y value is: ", self.controller.getY(
             self.controller.Hand.kLeftHand))
+        if self.x < 10:
+            print(x)
+            self.cvSink.setSource(self.cam1)
+            x += 1
+        else:
+            self.cvSink.setSource(self.cam2)
+            x = 0
         # print("The gyro Yaw value is: ", self.gyro.getYaw())
         # self.sd.putValue("Gyro Yaw", self.gyro.getYaw())
         # self.sd.putValue("Left Encoder Value",
