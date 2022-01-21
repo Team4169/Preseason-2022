@@ -90,7 +90,7 @@ class MyRobot(wpilib.TimedRobot):
         #             0.5,
         #             0
         #         )
-        kP = self.sd.getValue("kP")
+        kP = self.sd.getValue("kP",.05)
         error = self.get_side_distance("left") - get_side_distance("right")
         print(f"error{error}")
         print(f"left: {self.get_side_distance('left')}, right: {get_side_distance('right')}")
