@@ -22,8 +22,8 @@ def main():
     cs.enableLogging()
 
     # camera = cs.startAutomaticCapture()
-    cam1 = cscore.CameraServer.startAutomaticCapture(0)
-    cam2 = cscore.CameraServer.startAutomaticCapture(1)
+    cam1 = CameraServer.startAutomaticCapture(0)
+    cam2 = CameraServer.startAutomaticCapture(1)
 
     # camera.setResolution(320, 240)
 
