@@ -21,9 +21,11 @@ def main():
     cs = CameraServer.getInstance()
     cs.enableLogging()
 
-    camera = cs.startAutomaticCapture()
+    # camera = cs.startAutomaticCapture()
+    cam1 = cscore.CameraServer.startAutomaticCapture(0)
+    cam2 = cscore.CameraServer.startAutomaticCapture(1)
 
-    camera.setResolution(320, 240)
+    # camera.setResolution(320, 240)
 
     # Get a CvSink. This will capture images from the camera
     cvSink = cs.getVideo()
@@ -33,11 +35,19 @@ def main():
 
     # Allocating new images is very expensive, always try to preallocate
     img = np.zeros(shape=(240, 320, 3), dtype=np.uint8)
+    print("ayo in main of vision")
 
     while True:
         # Tell the CvSink to grab a frame from the camera and put it
         # in the source image.  If there is an error notify the output.
         time, img = cvSink.grabFrame(img)
+        if self.x < 10:
+            print(x)
+            self.cvSink.setSource(cam1)
+            x += 1
+        else:
+            self.cvSink.setSource(cam2)
+            x = 0
         print("grabbing frame")
         if time == 0:
             # Send the output the error.
@@ -49,4 +59,4 @@ def main():
         cv2.rectangle(img, (100, 100), (300, 300), (255, 255, 255), 5)
 
         # Give the output stream a new image to display
-        outputStream.putFrame(img)
+        # outputStream.putFrame(img)
