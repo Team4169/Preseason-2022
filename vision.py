@@ -38,6 +38,7 @@ def main():
         # Tell the CvSink to grab a frame from the camera and put it
         # in the source image.  If there is an error notify the output.
         time, img = cvSink.grabFrame(img)
+        print("grabbing frame")
         if time == 0:
             # Send the output the error.
             outputStream.notifyError(cvSink.getError())

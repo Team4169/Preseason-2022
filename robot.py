@@ -22,10 +22,10 @@ class MyRobot(wpilib.TimedRobot):
         self.right = wpilib.SpeedControllerGroup(
             self.front_right_motor, self.rear_right_motor)
 
-        self.drive = wpilib.drive.DifferentialDrive(
-            self.right,
-            self.left
-        )
+        # self.drive = wpilib.drive.DifferentialDrive(
+        #     self.right,
+        #     self.left
+        # )
 
         self.controller = wpilib.XboxController(0)
         self.timer = wpilib.Timer()
@@ -47,10 +47,10 @@ class MyRobot(wpilib.TimedRobot):
         pass
 
     def teleopPeriodic(self):
-        print("The drive X value is: ", self.controller.getX(
-            self.controller.Hand.kLeftHand))
-        print("The drive Y value is: ", self.controller.getY(
-            self.controller.Hand.kLeftHand))
+        # print("The drive X value is: ", self.controller.getX(
+        #     self.controller.Hand.kLeftHand))
+        # print("The drive Y value is: ", self.controller.getY(
+        #     self.controller.Hand.kLeftHand))
         # print("The gyro Yaw value is: ", self.gyro.getYaw())
         # self.sd.putValue("Gyro Yaw", self.gyro.getYaw())
         # self.sd.putValue("Left Encoder Value",
