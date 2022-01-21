@@ -51,7 +51,7 @@ class MyRobot(wpilib.TimedRobot):
             self.controller.Hand.kLeftHand))
         print("The drive Y value is: ", self.controller.getY(
             self.controller.Hand.kLeftHand))
-        print("The gyro Yaw value is: ", self.gyro.getYaw())
+        # print("The gyro Yaw value is: ", self.gyro.getYaw())
         # self.sd.putValue("Gyro Yaw", self.gyro.getYaw())
         # self.sd.putValue("Left Encoder Value",
         #                  self.front_left_motor.getSelectedSonsorPosition())
