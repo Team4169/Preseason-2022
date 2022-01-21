@@ -8,7 +8,7 @@ import navx
 
 class MyRobot(wpilib.TimedRobot):
     def robotInit(self):
-        wpilib.CameraServer.launch("vision.py:main")
+        wpilib.CameraServer.launch()
 
 
         self.front_left_motor = ctre.WPI_TalonSRX(constants["frontLeftPort"])
