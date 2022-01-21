@@ -93,7 +93,7 @@ class MyRobot(wpilib.TimedRobot):
         kP = self.sd.getValue("kP")
         error = self.get_side_distance("left") - get_side_distance("right")
         print(f"error{error}")
-        print(f"left: {self.get_side_distance("left")}, right: {get_side_distance("right")}")
+        print(f"left: {self.get_side_distance('left')}, right: {get_side_distance('right')}")
         drive.tankDrive(.5 + kP * error, .5 - kP * error);
 
 
