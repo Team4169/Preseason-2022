@@ -35,11 +35,11 @@ class MyRobot(wpilib.TimedRobot):
         self.left_tick_per_foot = 911
         self.right_tick_per_foot = 610
 
-    def get_side_distance(side):
+    def get_side_distance(self, side):
         if side == "left":
-            return self.front_left_motor.getSelectedSensorPosition() - self.left_enc_init_val * 1 / self.left_tick_per_foot
+            return -1 * ((self.front_left_motor.getSelectedSensorPosition() - self.left_enc_init_val) * 1 / self.left_tick_per_foot)
         if side == "right":
-            return (self.front_right_motor.getSelectedSensorPosition() - self.right_enc_init_val) * 1 / self.right_tick_per_foot
+            return (self.rear_right_motor.getSelectedSensorPosition() - self.right_enc_init_val) * 1 / self.right_tick_per_foot
     
     def teleopInit(self):
         #self.myRobot.setSafetyEnabled(True)
@@ -91,10 +91,12 @@ class MyRobot(wpilib.TimedRobot):
         #             0
         #         )
         kP = self.sd.getValue("kP",.05)
-        error = self.get_side_distance("left") - get_side_distance("right")
+        error = self.get_side_distance("left") - self.get_side_distance("right")
         print(f"error{error}")
-        print(f"left: {self.get_side_distance('left')}, right: {get_side_distance('right')}")
-        drive.tankDrive(.5 + kP * error, .5 - kP * error);
+        self.sd.putValue("rightdistance",self.get_side_distance("right"))
+        self.sd.putValue("leftdistance",self.get_side_distance("left"))
+        print(f"left: {self.get_side_distance('left')}, right: {self.get_side_distance('right')}")
+        self.drive.tankDrive(.4 - kP * error, .4 + kP * error);
 
 
 
