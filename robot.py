@@ -40,6 +40,8 @@ class Robot(wpilib.IterativeRobot):
 
     def robotInit(self):
         self.talon = WPI_TalonSRX(constants["frontLeftPort"])
+        self.rear_left_motor = ctre.WPI_VictorSPX(constants["rearLeftPort"])
+        self.rear_left_motor.follow(self.talon)
         self.controller = wpilib.XboxController(0)
 
         self.loops = 0
@@ -47,7 +49,7 @@ class Robot(wpilib.IterativeRobot):
 
         # first choose the sensor
         self.talon.configSelectedFeedbackSensor(
-            WPI_TalonSRX.FeedbackDevice.QuadEncoder, #Changed from the mag encoder used in example to quadencoder. Not sure if this will break the code.
+            WPI_TalonSRX.FeedbackDevice.QuadEncoder, #Changed from the mag encoder used in example to QuadEncoder. Not sure if this will break the code.
             self.kPIDLoopIdx,
             self.kTimeoutMs,
         )
