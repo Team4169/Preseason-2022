@@ -39,15 +39,15 @@ class Robot(wpilib.IterativeRobot):
     kTimeoutMs = 10
 
     def robotInit(self):
-        self.talon = WPI_TalonSRX(3)
-        self.joy = wpilib.Joystick(0)
+        self.talon = WPI_TalonSRX(constants["frontLeftPort"])
+        self.controller = wpilib.XboxController(0)
 
         self.loops = 0
         self.timesInMotionMagic = 0
 
         # first choose the sensor
         self.talon.configSelectedFeedbackSensor(
-            WPI_TalonSRX.FeedbackDevice.CTRE_MagEncoder_Relative,
+            WPI_TalonSRX.FeedbackDevice.QuadEncoder, #Changed from the mag encoder used in example to quadencoder. Not sure if this will break the code.
             self.kPIDLoopIdx,
             self.kTimeoutMs,
         )
@@ -85,7 +85,7 @@ class Robot(wpilib.IterativeRobot):
         This function is called periodically during operator control
         """
         # get gamepad axis - forward stick is positive
-        leftYstick = -1.0 * self.joy.getY()
+        leftYstick = -1.0 * self.controller.getX(self.controller.Hand.kLeftHand)
         # calculate the percent motor output
         motorOutput = self.talon.getMotorOutputPercent()
 
@@ -97,8 +97,9 @@ class Robot(wpilib.IterativeRobot):
         )
 
         if self.joy.getRawButton(1):
-            # Motion Magic - 4096 ticks/rev * 10 Rotations in either direction
-            targetPos = leftYstick * 4096 * 10.0
+            # Motion Magic - 4096 ticks/rev * 3 Rotations in either direction
+            # This might not be accurate for our encoders - Noah
+            targetPos = 4096 * 3.0
             self.talon.set(WPI_TalonSRX.ControlMode.MotionMagic, targetPos)
 
             # append more signals to print when in speed mode.
