@@ -1,102 +1,164 @@
-#Test Jan 10th
+#!/usr/bin/env python3
+
+"""
+ * Example demonstrating the motion magic control mode.
+ * Tested with Logitech F710 USB Gamepad inserted into Driver Station.
+ *
+ * Be sure to select the correct feedback sensor using configSelectedFeedbackSensor() below.
+ *
+ * After deploying/debugging this to your RIO, first use the left Y-stick
+ * to throttle the Talon manually.  This will confirm your hardware setup/sensors
+ * and will allow you to take initial measurements.
+ *
+ * Be sure to confirm that when the Talon is driving forward (green) the
+ * position sensor is moving in a positive direction.  If this is not the
+ * cause, flip the boolean input to the setSensorPhase() call below.
+ *
+ * Once you've ensured your feedback device is in-phase with the motor,
+ * and followed the walk-through in the Talon SRX Software Reference Manual,
+ * use button1 to motion-magic servo to target position specified by the gamepad stick.
+"""
+
+from ctre import WPI_TalonSRX
 import wpilib
-import wpilib.drive
-import ctre
-from constants import constants
-from networktables import NetworkTables
 
 
-class MyRobot(wpilib.TimedRobot):
+class Robot(wpilib.IterativeRobot):
+
+    #: Which PID slot to pull gains from. Starting 2018, you can choose from
+    #: 0,1,2 or 3. Only the first two (0,1) are visible in web-based
+    #: configuration.
+    kSlotIdx = 0
+
+    #: Talon SRX/ Victor SPX will supported multiple (cascaded) PID loops. For
+    #: now we just want the primary one.
+    kPIDLoopIdx = 0
+
+    #: set to zero to skip waiting for confirmation, set to nonzero to wait and
+    #: report to DS if action fails.
+    kTimeoutMs = 10
 
     def robotInit(self):
-        """Robot initialization function"""
+        self.talon = WPI_TalonSRX(3)
+        self.joy = wpilib.Joystick(0)
 
-        # object that handles basic drive operations
-        self.front_left_motor = ctre.WPI_TalonSRX(constants["frontLeftPort"])
-        self.rear_left_motor = ctre.WPI_VictorSPX(constants["rearLeftPort"])
-        self.left = wpilib.SpeedControllerGroup(
-            self.front_left_motor, self.rear_left_motor)
+        self.loops = 0
+        self.timesInMotionMagic = 0
 
-        self.front_right_motor = ctre.WPI_VictorSPX(constants["frontRightPort"])
-        self.rear_right_motor = ctre.WPI_TalonSRX(constants["rearRightPort"])
-        self.right = wpilib.SpeedControllerGroup(
-            self.front_right_motor, self.rear_right_motor)
+        # first choose the sensor
+        self.talon.configSelectedFeedbackSensor(
+            WPI_TalonSRX.FeedbackDevice.CTRE_MagEncoder_Relative,
+            self.kPIDLoopIdx,
+            self.kTimeoutMs,
+        )
+        self.talon.setSensorPhase(True)
+        self.talon.setInverted(False)
 
-        self.drive = wpilib.drive.DifferentialDrive(
-            self.right,
-            self.left
+        # Set relevant frame periods to be at least as fast as periodic rate
+        self.talon.setStatusFramePeriod(
+            WPI_TalonSRX.StatusFrameEnhanced.Status_13_Base_PIDF0, 10, self.kTimeoutMs
+        )
+        self.talon.setStatusFramePeriod(
+            WPI_TalonSRX.StatusFrameEnhanced.Status_10_MotionMagic, 10, self.kTimeoutMs
         )
 
-        # Xbox controller
-        self.controller = wpilib.XboxController(0)
-        self.sd = NetworkTables.getTable("SmartDashboard")
-        self.front_left_motor.configSelectedFeedbackSensor(ctre.FeedbackDevice.QuadEncoder, 0, 0)
-        self.rear_right_motor.configSelectedFeedbackSensor(ctre.FeedbackDevice.QuadEncoder, 0, 0)
-        self.left_tick_per_foot = 911
-        self.right_tick_per_foot = 610
+        # set the peak and nominal outputs
+        self.talon.configNominalOutputForward(0, self.kTimeoutMs)
+        self.talon.configNominalOutputReverse(0, self.kTimeoutMs)
+        self.talon.configPeakOutputForward(1, self.kTimeoutMs)
+        self.talon.configPeakOutputReverse(-1, self.kTimeoutMs)
 
-    def get_side_distance(side):
-        if side == "left":
-            return self.front_left_motor.getSelectedSensorPosition() - self.left_enc_init_val * 1 / self.left_tick_per_foot
-        if side == "right":
-            return (self.front_right_motor.getSelectedSensorPosition() - self.right_enc_init_val) * 1 / self.right_tick_per_foot
-    
-    def teleopInit(self):
-        #self.myRobot.setSafetyEnabled(True)
-        self.left_enc_init_val = self.front_left_motor.getSelectedSensorPosition()
-        self.right_enc_init_val = self.rear_right_motor.getSelectedSensorPosition()
-        self.going_to_goal = False
-        self.sd.putValue("kP", 0.05)
+        # set closed loop gains in slot0 - see documentation */
+        self.talon.selectProfileSlot(self.kSlotIdx, self.kPIDLoopIdx)
+        self.talon.config_kF(0, 0.2, self.kTimeoutMs)
+        self.talon.config_kP(0, 0.2, self.kTimeoutMs)
+        self.talon.config_kI(0, 0, self.kTimeoutMs)
+        self.talon.config_kD(0, 0, self.kTimeoutMs)
+        # set acceleration and vcruise velocity - see documentation
+        self.talon.configMotionCruiseVelocity(15000, self.kTimeoutMs)
+        self.talon.configMotionAcceleration(6000, self.kTimeoutMs)
+        # zero the sensor
+        self.talon.setSelectedSensorPosition(0, self.kPIDLoopIdx, self.kTimeoutMs)
 
     def teleopPeriodic(self):
-        # self.drive.arcadeDrive(
-        #     self.controller.getY(self.controller.Hand.kLeftHand),
-        #     self.controller.getY(self.controller.Hand.kRightHand))
-        # print("Left Enc Value: ", self.front_left_motor.getSelectedSensorPosition())
-        # print("Right Enc Value: ", self.rear_right_motor.getSelectedSensorPosition())
-        self.sd.putValue("Left Enc Value", self.front_left_motor.getSelectedSensorPosition() - self.left_enc_init_val)
-        self.sd.putValue("Right Enc Value", self.rear_right_motor.getSelectedSensorPosition() - self.right_enc_init_val)
-        # if self.controller.getAButton() and not self.going_to_goal:
-        #     self.cur_left_enc = self.front_left_motor.getSelectedSensorPosition()
-        #     self.goal_dist = self.cur_left_enc + self.left_tick_per_foot
-        #     self.going_to_goal = True
-        # if self.controller.getBButton() and not self.going_to_goal:
-        #     self.cur_left_enc = self.front_left_motor.getSelectedSensorPosition()
-        #     self.goal_dist = self.cur_left_enc + 2 * self.left_tick_per_foot
-        #     self.going_to_goal = True
-        # if self.controller.getXButton() and not self.going_to_goal:
-        #     self.cur_left_enc = self.front_left_motor.getSelectedSensorPosition()
-        #     self.goal_dist = self.cur_left_enc - 2 * self.left_tick_per_foot
-        #     self.going_to_goal = True
-        # if self.controller.getYButton() and not self.going_to_goal:
-        #     self.cur_left_enc = self.front_left_motor.getSelectedSensorPosition()
-        #     self.goal_dist = self.cur_left_enc - self.left_tick_per_foot
-        #     self.going_to_goal = True
-        # if self.going_to_goal:
-        #     self.cur_left_enc = self.front_left_motor.getSelectedSensorPosition()
-        #     if abs(self.cur_left_enc - self.goal_dist) < 100:
-        #         self.drive.arcadeDrive(
-        #             0,
-        #             0
-        #         )
-        #         self.going_to_goal = False
-        #     elif self.cur_left_enc > self.goal_dist:
-        #         self.drive.arcadeDrive(
-        #             -0.5,
-        #             0
-        #         )
-        #     elif self.cur_left_enc < self.goal_dist:
-        #         self.drive.arcadeDrive(
-        #             0.5,
-        #             0
-        #         )
-        kP = self.sd.getValue("kP")
-        error = self.get_side_distance("left") - get_side_distance("right")
-        print(f"error{error}")
-        print(f"left: {self.get_side_distance("left")}, right: {get_side_distance("right")}")
-        drive.tankDrive(.5 + kP * error, .5 - kP * error);
+        """
+        This function is called periodically during operator control
+        """
+        # get gamepad axis - forward stick is positive
+        leftYstick = -1.0 * self.joy.getY()
+        # calculate the percent motor output
+        motorOutput = self.talon.getMotorOutputPercent()
 
+        # prepare line to print
+        sb = []
+        sb.append("\tOut%%: %.3f" % motorOutput)
+        sb.append(
+            "\tVel: %.3f" % self.talon.getSelectedSensorVelocity(self.kPIDLoopIdx)
+        )
+
+        if self.joy.getRawButton(1):
+            # Motion Magic - 4096 ticks/rev * 10 Rotations in either direction
+            targetPos = leftYstick * 4096 * 10.0
+            self.talon.set(WPI_TalonSRX.ControlMode.MotionMagic, targetPos)
+
+            # append more signals to print when in speed mode.
+            sb.append("\terr: %s" % self.talon.getClosedLoopError(self.kPIDLoopIdx))
+            sb.append("\ttrg: %.3f" % targetPos)
+        else:
+            # Percent voltage mode
+            self.talon.set(WPI_TalonSRX.ControlMode.PercentOutput, leftYstick)
+
+        # instrumentation
+        self.processInstrumentation(self.talon, sb)
+
+    def processInstrumentation(self, tal, sb):
+
+        # smart dash plots
+        wpilib.SmartDashboard.putNumber(
+            "SensorVel", tal.getSelectedSensorVelocity(self.kPIDLoopIdx)
+        )
+        wpilib.SmartDashboard.putNumber(
+            "SensorPos", tal.getSelectedSensorPosition(self.kPIDLoopIdx)
+        )
+        wpilib.SmartDashboard.putNumber(
+            "MotorOutputPercent", tal.getMotorOutputPercent()
+        )
+        wpilib.SmartDashboard.putNumber(
+            "ClosedLoopError", tal.getClosedLoopError(self.kPIDLoopIdx)
+        )
+
+        # check if we are motion-magic-ing
+        if tal.getControlMode() == WPI_TalonSRX.ControlMode.MotionMagic:
+            self.timesInMotionMagic += 1
+        else:
+            self.timesInMotionMagic = 0
+
+        if self.timesInMotionMagic > 10:
+            # print the Active Trajectory Point Motion Magic is servoing towards
+            wpilib.SmartDashboard.putNumber(
+                "ClosedLoopTarget", tal.getClosedLoopTarget(self.kPIDLoopIdx)
+            )
+
+            if not self.isSimulation():
+                wpilib.SmartDashboard.putNumber(
+                    "ActTrajVelocity", tal.getActiveTrajectoryVelocity()
+                )
+                wpilib.SmartDashboard.putNumber(
+                    "ActTrajPosition", tal.getActiveTrajectoryPosition()
+                )
+                wpilib.SmartDashboard.putNumber(
+                    "ActTrajHeading", tal.getActiveTrajectoryHeading()
+                )
+
+        # periodically print to console
+        self.loops += 1
+        if self.loops >= 10:
+            self.loops = 0
+            print(" ".join(sb))
+
+        # clear line cache
+        sb.clear()
 
 
 if __name__ == "__main__":
-    wpilib.run(MyRobot)
+    wpilib.run(Robot)
