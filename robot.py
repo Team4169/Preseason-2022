@@ -19,9 +19,9 @@
  * use button1 to motion-magic servo to target position specified by the gamepad stick.
 """
 
-from ctre import WPI_TalonSRX
+from ctre import WPI_TalonSRX, WPI_VictorSPX, FeedbackDevice, StatusFrameEnhanced, ControlMode
 import wpilib
-
+from constants import constants
 
 class Robot(wpilib.IterativeRobot):
 
@@ -40,7 +40,7 @@ class Robot(wpilib.IterativeRobot):
 
     def robotInit(self):
         self.talon = WPI_TalonSRX(constants["frontLeftPort"])
-        self.rear_left_motor = ctre.WPI_VictorSPX(constants["rearLeftPort"])
+        self.rear_left_motor = WPI_VictorSPX(constants["rearLeftPort"])
         self.rear_left_motor.follow(self.talon)
         self.controller = wpilib.XboxController(0)
 
@@ -49,7 +49,7 @@ class Robot(wpilib.IterativeRobot):
 
         # first choose the sensor
         self.talon.configSelectedFeedbackSensor(
-            WPI_TalonSRX.FeedbackDevice.QuadEncoder, #Changed from the mag encoder used in example to QuadEncoder. Not sure if this will break the code.
+            FeedbackDevice.QuadEncoder, #Changed from the mag encoder used in example to QuadEncoder. Not sure if this will break the code.
             self.kPIDLoopIdx,
             self.kTimeoutMs,
         )
@@ -58,10 +58,10 @@ class Robot(wpilib.IterativeRobot):
 
         # Set relevant frame periods to be at least as fast as periodic rate
         self.talon.setStatusFramePeriod(
-            WPI_TalonSRX.StatusFrameEnhanced.Status_13_Base_PIDF0, 10, self.kTimeoutMs
+            StatusFrameEnhanced.Status_13_Base_PIDF0, 10, self.kTimeoutMs
         )
         self.talon.setStatusFramePeriod(
-            WPI_TalonSRX.StatusFrameEnhanced.Status_10_MotionMagic, 10, self.kTimeoutMs
+            StatusFrameEnhanced.Status_10_MotionMagic, 10, self.kTimeoutMs
         )
 
         # set the peak and nominal outputs
@@ -98,18 +98,18 @@ class Robot(wpilib.IterativeRobot):
             "\tVel: %.3f" % self.talon.getSelectedSensorVelocity(self.kPIDLoopIdx)
         )
 
-        if self.joy.getRawButton(1):
+        if self.controller.getBButton():
             # Motion Magic - 4096 ticks/rev * 3 Rotations in either direction
             # This might not be accurate for our encoders - Noah
             targetPos = 4096 * 3.0
-            self.talon.set(WPI_TalonSRX.ControlMode.MotionMagic, targetPos)
+            self.talon.set(ControlMode.MotionMagic, targetPos)
 
             # append more signals to print when in speed mode.
             sb.append("\terr: %s" % self.talon.getClosedLoopError(self.kPIDLoopIdx))
             sb.append("\ttrg: %.3f" % targetPos)
         else:
             # Percent voltage mode
-            self.talon.set(WPI_TalonSRX.ControlMode.PercentOutput, leftYstick)
+            self.talon.set(ControlMode.PercentOutput, leftYstick)
 
         # instrumentation
         self.processInstrumentation(self.talon, sb)
@@ -131,7 +131,7 @@ class Robot(wpilib.IterativeRobot):
         )
 
         # check if we are motion-magic-ing
-        if tal.getControlMode() == WPI_TalonSRX.ControlMode.MotionMagic:
+        if tal.getControlMode() == ControlMode.MotionMagic:
             self.timesInMotionMagic += 1
         else:
             self.timesInMotionMagic = 0
@@ -149,10 +149,10 @@ class Robot(wpilib.IterativeRobot):
                 wpilib.SmartDashboard.putNumber(
                     "ActTrajPosition", tal.getActiveTrajectoryPosition()
                 )
-                wpilib.SmartDashboard.putNumber(
-                    "ActTrajHeading", tal.getActiveTrajectoryHeading()
-                )
-
+                # wpilib.SmartDashboard.putNumber(
+                #     "ActTrajHeading", tal.getActiveTrajectoryHeading()
+                # )
+                # commented the above lines out because no method apparently
         # periodically print to console
         self.loops += 1
         if self.loops >= 10:
