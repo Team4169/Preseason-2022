@@ -5,7 +5,6 @@ import ctre
 from constants import constants
 from networktables import NetworkTables
 
-
 class MyRobot(wpilib.TimedRobot):
 
     def robotInit(self):
@@ -34,67 +33,40 @@ class MyRobot(wpilib.TimedRobot):
         self.rear_right_motor.configSelectedFeedbackSensor(ctre.FeedbackDevice.QuadEncoder, 0, 0)
         self.left_tick_per_foot = 911
         self.right_tick_per_foot = 610
+        self.gyro = navx.AHRS.create_i2c()
 
-    def get_side_distance(side):
-        if side == "left":
-            return self.front_left_motor.getSelectedSensorPosition() - self.left_enc_init_val * 1 / self.left_tick_per_foot
-        if side == "right":
-            return (self.front_right_motor.getSelectedSensorPosition() - self.right_enc_init_val) * 1 / self.right_tick_per_foot
-    
     def teleopInit(self):
-        #self.myRobot.setSafetyEnabled(True)
-        self.left_enc_init_val = self.front_left_motor.getSelectedSensorPosition()
-        self.right_enc_init_val = self.rear_right_motor.getSelectedSensorPosition()
-        self.going_to_goal = False
-        self.sd.putValue("kP", 0.05)
+        pass
 
     def teleopPeriodic(self):
         # self.drive.arcadeDrive(
         #     self.controller.getY(self.controller.Hand.kLeftHand),
         #     self.controller.getY(self.controller.Hand.kRightHand))
-        # print("Left Enc Value: ", self.front_left_motor.getSelectedSensorPosition())
-        # print("Right Enc Value: ", self.rear_right_motor.getSelectedSensorPosition())
-        self.sd.putValue("Left Enc Value", self.front_left_motor.getSelectedSensorPosition() - self.left_enc_init_val)
-        self.sd.putValue("Right Enc Value", self.rear_right_motor.getSelectedSensorPosition() - self.right_enc_init_val)
-        # if self.controller.getAButton() and not self.going_to_goal:
-        #     self.cur_left_enc = self.front_left_motor.getSelectedSensorPosition()
-        #     self.goal_dist = self.cur_left_enc + self.left_tick_per_foot
-        #     self.going_to_goal = True
-        # if self.controller.getBButton() and not self.going_to_goal:
-        #     self.cur_left_enc = self.front_left_motor.getSelectedSensorPosition()
-        #     self.goal_dist = self.cur_left_enc + 2 * self.left_tick_per_foot
-        #     self.going_to_goal = True
-        # if self.controller.getXButton() and not self.going_to_goal:
-        #     self.cur_left_enc = self.front_left_motor.getSelectedSensorPosition()
-        #     self.goal_dist = self.cur_left_enc - 2 * self.left_tick_per_foot
-        #     self.going_to_goal = True
-        # if self.controller.getYButton() and not self.going_to_goal:
-        #     self.cur_left_enc = self.front_left_motor.getSelectedSensorPosition()
-        #     self.goal_dist = self.cur_left_enc - self.left_tick_per_foot
-        #     self.going_to_goal = True
-        # if self.going_to_goal:
-        #     self.cur_left_enc = self.front_left_motor.getSelectedSensorPosition()
-        #     if abs(self.cur_left_enc - self.goal_dist) < 100:
-        #         self.drive.arcadeDrive(
-        #             0,
-        #             0
-        #         )
-        #         self.going_to_goal = False
-        #     elif self.cur_left_enc > self.goal_dist:
-        #         self.drive.arcadeDrive(
-        #             -0.5,
-        #             0
-        #         )
-        #     elif self.cur_left_enc < self.goal_dist:
-        #         self.drive.arcadeDrive(
-        #             0.5,
-        #             0
-        #         )
         kP = self.sd.getValue("kP")
-        error = self.get_side_distance("left") - get_side_distance("right")
-        print(f"error{error}")
-        print(f"left: {self.get_side_distance("left")}, right: {get_side_distance("right")}")
-        drive.tankDrive(.5 + kP * error, .5 - kP * error);
+
+        rotateToAngle = False
+        setpoint = 0.0
+        if self.controller.getAButton():
+            self.gyro.reset()
+        if self.controller.getBButton():
+            setpoint = 0.0
+            rotateToAngle = True
+        elif self.stick.getXButton():
+            setpoint = 90.0
+            rotateToAngle = True
+
+        if rotateToAngle:
+            currentRotationRate = self.turnController.calculate(
+                self.gyro.getYaw(), setpoint
+            )
+        else:
+            self.turnController.reset()
+            currentRotationRate = self.controller.getY(self.controller.Hand.kRightHand)
+
+        self.drive.driveArcade(
+            self.controller.getY(self.controller.Hand.kLeftHand),
+            currentRotationRate
+        )
 
 
 
