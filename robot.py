@@ -82,6 +82,10 @@ class Robot(wpilib.IterativeRobot):
         # zero the sensor
         self.talon.setSelectedSensorPosition(0, self.kPIDLoopIdx, self.kTimeoutMs)
 
+    def teleopInit(self):
+        self.talon.setSelectedSensorPosition(0, self.kPIDLoopIdx, self.kTimeoutMs)
+
+
     def teleopPeriodic(self):
         """
         This function is called periodically during operator control
