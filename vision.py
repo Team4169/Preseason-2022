@@ -9,7 +9,11 @@
 #
 # To try this code out locally (if you have robotpy-cscore installed), you
 # can execute `python3 -m cscore vision.py:main`
-#
+
+
+
+# https://docs.wpilib.org/en/stable/docs/software/vision-processing/roborio/using-multiple-cameras.html
+# https://github.com/robotpy/robotpy-cscore/blob/main/examples/dual_cameraserver.py
 
 import cv2
 import numpy as np
