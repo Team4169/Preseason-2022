@@ -125,7 +125,7 @@ class Robot(wpilib.IterativeRobot):
         self.right.configPeakOutputForward(1, self.kTimeoutMs)
         self.right.configPeakOutputReverse(-1, self.kTimeoutMs)
 
-        self.targetPos = 4096 * 3.0
+        self.targetPos = 1000
 
     def teleopInit(self):
         self.left.setSelectedSensorPosition(0, self.kPIDLoopIdx, self.kTimeoutMs)
@@ -133,6 +133,8 @@ class Robot(wpilib.IterativeRobot):
 
 
     def teleopPeriodic(self):
+        wpilib.SmartDashboard.putNumber("target position", self.targetPos)
+
         """
         This function is called periodically during operator control
         """
