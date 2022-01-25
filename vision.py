@@ -22,41 +22,20 @@ def main():
     cs.enableLogging()
 
     # camera = cs.startAutomaticCapture()
-    cam1 = CameraServer.startAutomaticCapture(0)
-    cam2 = CameraServer.startAutomaticCapture(1)
+    cam1 = CameraServer.startAutomaticCapture(dev=0)
+    cam2 = CameraServer.startAutomaticCapture(dev=1)
 
-    # camera.setResolution(320, 240)
+    cs.waitForever()
 
-    # Get a CvSink. This will capture images from the camera
-    cvSink = cs.getVideo()
+if __name__ == "__main__":
 
-    # (optional) Setup a CvSource. This will send images back to the Dashboard
-    outputStream = cs.putVideo("Rectangle", 320, 240)
+    # To see messages from networktables, you must setup logging
+    import logging
 
-    # Allocating new images is very expensive, always try to preallocate
-    img = np.zeros(shape=(240, 320, 3), dtype=np.uint8)
-    print("ayo in main of vision")
+    logging.basicConfig(level=logging.DEBUG)
 
-    while True:
-        # Tell the CvSink to grab a frame from the camera and put it
-        # in the source image.  If there is an error notify the output.
-        time, img = cvSink.grabFrame(img)
-        if self.x < 10:
-            print(x)
-            self.cvSink.setSource(cam1)
-            x += 1
-        else:
-            self.cvSink.setSource(cam2)
-            x = 0
-        print("grabbing frame")
-        if time == 0:
-            # Send the output the error.
-            outputStream.notifyError(cvSink.getError())
-            # skip the rest of the current iteration
-            continue
+    # You should uncomment these to connect to the RoboRIO
+    # import networktables
+    # networktables.initialize(server='10.xx.xx.2')
 
-        # Put a rectangle on the image
-        cv2.rectangle(img, (100, 100), (300, 300), (255, 255, 255), 5)
-
-        # Give the output stream a new image to display
-        # outputStream.putFrame(img)
+    main()
