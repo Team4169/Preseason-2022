@@ -39,7 +39,7 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
 
     # You should uncomment these to connect to the RoboRIO
-    # import networktables
-    # networktables.initialize(server='10.xx.xx.2')
+    import networktables
+    networktables.initialize(server='10.41.69.2')
 
     main()
