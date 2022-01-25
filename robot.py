@@ -1,82 +1,64 @@
 #!/usr/bin/env python3
 
+import typing
 import wpilib
-from wpilib.drive import DifferentialDrive
-import ctre
-from constants import constants
-from networktables import NetworkTables
-import navx
+import commands2
 
-class MyRobot(wpilib.TimedRobot):
-    """This is a demo program showing how to use Gyro control with the
-    DifferentialDrive class."""
+from robotcontainer import RobotContainer
 
-    def robotInit(self):
-        """Robot initialization function"""
-        self.angleSetpoint = 0.0
-        self.pGain = 1  # propotional turning constant
 
-        #smart dashboard
-        self.sd = NetworkTables.getTable("SmartDashboard")
-        # gyro calibration constant, may need to be adjusted
-        # gyro value of 360 is set to correspond to one full revolution
-        
-        # self.voltsPerDegreePerSecond = 0.0128
+class MyRobot(commands2.TimedCommandRobot):
+    """
+    Our default robot class, pass it to wpilib.run
 
-        self.front_left_motor = ctre.WPI_TalonSRX(constants["frontLeftPort"])
-        self.rear_left_motor = ctre.WPI_VictorSPX(constants["rearLeftPort"])
-        self.rear_left_motor.setInverted(True)
-        self.left = wpilib.SpeedControllerGroup(
-            self.front_left_motor, self.rear_left_motor)
+    Command v2 robots are encouraged to inherit from TimedCommandRobot, which
+    has an implementation of robotPeriodic which runs the scheduler for you
+    """
 
-        self.front_right_motor = ctre.WPI_TalonSRX(constants["frontRightPort"])
-        self.rear_right_motor = ctre.WPI_VictorSPX(constants["rearRightPort"])
-        self.rear_right_motor.setInverted(True)
-        self.right = wpilib.SpeedControllerGroup(
-            self.front_right_motor, self.rear_right_motor)
+    autonomousCommand: typing.Optional[commands2.Command] = None
 
-        self.drive = wpilib.drive.DifferentialDrive(
-            self.right,
-            self.left
-        )
-
-        self.controller = wpilib.XboxController(0)
-        self.timer = wpilib.Timer()
-        self.sd = NetworkTables.getTable("SmartDashboard")
-        self.gyro = navx.AHRS.create_i2c()
-
-        self.drive = DifferentialDrive(self.left, self.right)
-
-    def teleopInit(self):
+    def robotInit(self) -> None:
         """
-        Runs at the beginning of the teleop period
-        """
-        self.pGain = self.sd.getValue("PGain", self.pGain)
-        # self.gyro.setSensitivity(
-            # self.voltsPerDegreePerSecond
-        # )  # calibrates gyro values to equal degrees
-
-    def teleopPeriodic(self):
-        """
-        Sets the gyro sensitivity and drives the robot when the joystick is pushed. The
-        motor speed is set from the joystick while the RobotDrive turning value is assigned
-        from the error between the setpoint and the gyro angle.
+        This function is run when the robot is first started up and should be used for any
+        initialization code.
         """
 
-        turningValue = (self.angleSetpoint - self.gyro.getYaw()) * self.pGain
-        speed = self.controller.getY(self.controller.Hand.kLeftHand)
-        if speed >= 0:
-            # forwards
-            self.drive.arcadeDrive(speed, turningValue)
-        elif speed < 0:
-            # backwards
-            self.drive.arcadeDrive(speed, -turningValue)
+        # Instantiate our RobotContainer.  This will perform all our button bindings, and put our
+        # autonomous chooser on the dashboard.
+        self.container = RobotContainer()
 
-        self.sd.putValue("Gyro Yaw", self.gyro.getYaw())
-        self.sd.putValue("Turning Value", turningValue)
-        self.sd.putValue("PGain", self.pGain)
+    def disabledInit(self) -> None:
+        """This function is called once each time the robot enters Disabled mode."""
+        if self.autonomousCommand:
+            self.autonomousCommand.cancel()
 
+    def disabledPeriodic(self) -> None:
+        """This function is called periodically when disabled"""
 
+    def autonomousInit(self) -> None:
+        """This autonomous runs the autonomous command selected by your RobotContainer class."""
+        self.autonomousCommand = self.container.getAutonomousCommand()
+
+        if self.autonomousCommand:
+            self.autonomousCommand.schedule()
+
+    def autonomousPeriodic(self) -> None:
+        """This function is called periodically during autonomous"""
+
+    def teleopInit(self) -> None:
+        # This makes sure that the autonomous stops running when
+        # teleop starts running. If you want the autonomous to
+        # continue until interrupted by another command, remove
+        # this line or comment it out.
+        if self.autonomousCommand:
+            self.autonomousCommand.cancel()
+
+    def teleopPeriodic(self) -> None:
+        """This function is called periodically during operator control"""
+
+    def testInit(self) -> None:
+        # Cancels all running commands at the start of test mode
+        commands2.CommandScheduler.getInstance().cancelAll()
 
 
 if __name__ == "__main__":
