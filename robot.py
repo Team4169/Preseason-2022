@@ -32,6 +32,7 @@ class MyRobot(wpilib.TimedRobot):
         self.sd = NetworkTables.getTable("SmartDashboard")
         self.front_left_motor.configSelectedFeedbackSensor(ctre.FeedbackDevice.QuadEncoder, 0, 0)
         self.rear_right_motor.configSelectedFeedbackSensor(ctre.FeedbackDevice.QuadEncoder, 0, 0)
+        self.rear_right_motor.setInverted(True)
         self.left_tick_per_foot = 911
         self.right_tick_per_foot = 610
 
