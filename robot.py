@@ -25,13 +25,11 @@ class MyRobot(wpilib.TimedRobot):
 
         self.front_left_motor = ctre.WPI_TalonSRX(constants["frontLeftPort"])
         self.rear_left_motor = ctre.WPI_VictorSPX(constants["rearLeftPort"])
-        self.rear_left_motor.setInverted(True)
         self.left = wpilib.SpeedControllerGroup(
             self.front_left_motor, self.rear_left_motor)
 
-        self.front_right_motor = ctre.WPI_TalonSRX(constants["frontRightPort"])
-        self.rear_right_motor = ctre.WPI_VictorSPX(constants["rearRightPort"])
-        self.rear_right_motor.setInverted(True)
+        self.rear_right_motor = ctre.WPI_TalonSRX(constants["rearRightPort"])
+        self.front_right_motor = ctre.WPI_VictorSPX(constants["frontRightPort"])
         self.right = wpilib.SpeedControllerGroup(
             self.front_right_motor, self.rear_right_motor)
 
@@ -45,7 +43,6 @@ class MyRobot(wpilib.TimedRobot):
         self.sd = NetworkTables.getTable("SmartDashboard")
         self.gyro = navx.AHRS.create_i2c()
 
-        self.drive = DifferentialDrive(self.left, self.right)
 
     def teleopInit(self):
         """
@@ -71,7 +68,8 @@ class MyRobot(wpilib.TimedRobot):
         elif speed < 0:
             # backwards
             self.drive.arcadeDrive(speed, -turningValue)
-
+        print(self.gyro.getYaw(), turningValue, self.pGain)
+        print(self.controller.getY(self.controller.Hand.kLeftHand), self.controller.getY(self.controller.Hand.kRightHand))
         self.sd.putValue("Gyro Yaw", self.gyro.getYaw())
         self.sd.putValue("Turning Value", turningValue)
         self.sd.putValue("PGain", self.pGain)
