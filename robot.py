@@ -125,6 +125,8 @@ class Robot(wpilib.IterativeRobot):
         self.right.configPeakOutputForward(1, self.kTimeoutMs)
         self.right.configPeakOutputReverse(-1, self.kTimeoutMs)
 
+        self.targetPos = 4096 * 3.0
+
     def teleopInit(self):
         self.left.setSelectedSensorPosition(0, self.kPIDLoopIdx, self.kTimeoutMs)
         self.right.setSelectedSensorPosition(0, self.kPIDLoopIdx, self.kTimeoutMs)
@@ -146,17 +148,22 @@ class Robot(wpilib.IterativeRobot):
             "\tVel: %.3f" % self.left.getSelectedSensorVelocity(self.kPIDLoopIdx)
         )
 
+        if self.controller.getXButton():
+            self.targetPos += 100
+        if self.controller.getYButton():
+            self.targetPos -= 100
+
         if self.controller.getBButton():
             # Motion Magic - 4096 ticks/rev * 3 Rotations in either direction
             # This might not be accurate for our encoders - Noah
-            targetPos = 4096 * 3.0
-            self.left.set(ControlMode.MotionMagic, targetPos)
-            self.right.set(ControlMode.MotionMagic, targetPos)
+            self.left.set(ControlMode.MotionMagic, self.targetPos)
+            self.right.set(ControlMode.MotionMagic, self.targetPos)
             # append more signals to print when in speed mode.
             sb.append("\terr: %s" % self.left.getClosedLoopError(self.kPIDLoopIdx))
-            sb.append("\ttrg: %.3f" % targetPos)
+            sb.append("\ttrg: %.3f" % self.targetPos)
         else:
             # Percent voltage mode
+            pass
             self.left.set(ControlMode.PercentOutput, leftYstick)
             self.right.set(ControlMode.PercentOutput, (-1*leftYstick))
 
