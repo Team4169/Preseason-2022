@@ -98,8 +98,8 @@ class Robot(wpilib.IterativeRobot):
         self.left.config_kI(0, 0, self.kTimeoutMs)
         self.left.config_kD(0, 0, self.kTimeoutMs)
         # set acceleration and vcruise velocity - see documentation
-        self.left.configMotionCruiseVelocity(15000, self.kTimeoutMs)
-        self.left.configMotionAcceleration(6000, self.kTimeoutMs)
+        self.left.configMotionCruiseVelocity(5000, self.kTimeoutMs)
+        self.left.configMotionAcceleration(2000, self.kTimeoutMs)
         # zero the sensor
         self.left.setSelectedSensorPosition(0, self.kPIDLoopIdx, self.kTimeoutMs)
 
@@ -115,8 +115,8 @@ class Robot(wpilib.IterativeRobot):
         self.right.config_kI(0, 0, self.kTimeoutMs)
         self.right.config_kD(0, 0, self.kTimeoutMs)
         # set acceleration and vcruise velocity - see documentation
-        self.right.configMotionCruiseVelocity(15000, self.kTimeoutMs)
-        self.right.configMotionAcceleration(6000, self.kTimeoutMs)
+        self.right.configMotionCruiseVelocity(5000, self.kTimeoutMs)
+        self.right.configMotionAcceleration(2000, self.kTimeoutMs)
         # zero the sensor
         self.right.setSelectedSensorPosition(0, self.kPIDLoopIdx, self.kTimeoutMs)
 
@@ -157,7 +157,7 @@ class Robot(wpilib.IterativeRobot):
             # Motion Magic - 4096 ticks/rev * 3 Rotations in either direction
             # This might not be accurate for our encoders - Noah
             self.left.set(ControlMode.MotionMagic, self.targetPos)
-            self.right.set(ControlMode.MotionMagic, self.targetPos)
+            self.right.set(ControlMode.MotionMagic, (-1 * self.targetPos))
             # append more signals to print when in speed mode.
             sb.append("\terr: %s" % self.left.getClosedLoopError(self.kPIDLoopIdx))
             sb.append("\ttrg: %.3f" % self.targetPos)
@@ -165,10 +165,11 @@ class Robot(wpilib.IterativeRobot):
             # Percent voltage mode
             pass
             self.left.set(ControlMode.PercentOutput, leftYstick)
-            self.right.set(ControlMode.PercentOutput, (-1*leftYstick))
+            self.right.set(ControlMode.PercentOutput, leftYstick)
 
         # instrumentation
         self.processInstrumentation(self.left, sb)
+        self.processInstrumentation(self.right, sb)
 
     def processInstrumentation(self, tal, sb):
 
