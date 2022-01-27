@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 import wpilib
 from wpilib.drive import DifferentialDrive
 import ctre
@@ -14,7 +12,6 @@ class MyRobot(wpilib.TimedRobot):
     def robotInit(self):
         """Robot initialization function"""
         self.angleSetpoint = 0.0
-        self.pGain = 1  # propotional turning constant
 
         #smart dashboard
         self.sd = NetworkTables.getTable("SmartDashboard")
@@ -41,14 +38,14 @@ class MyRobot(wpilib.TimedRobot):
         self.controller = wpilib.XboxController(0)
         self.timer = wpilib.Timer()
         self.sd = NetworkTables.getTable("SmartDashboard")
-        self.gyro = navx.AHRS.create_i2c()
+        self.gyro = navx.AHRS.create_i2c(wpilib.I2C.Port.kOnboard)
 
 
     def teleopInit(self):
         """
         Runs at the beginning of the teleop period
         """
-        self.pGain = self.sd.getValue("PGain", self.pGain)
+        self.gyro.reset()
         # self.gyro.setSensitivity(
             # self.voltsPerDegreePerSecond
         # )  # calibrates gyro values to equal degrees
@@ -59,22 +56,27 @@ class MyRobot(wpilib.TimedRobot):
         motor speed is set from the joystick while the RobotDrive turning value is assigned
         from the error between the setpoint and the gyro angle.
         """
-
+        self.pGain = self.sd.getValue("PGain", 0.2)
+        self.isBPressed = self.controller.getBButton()
+        self.isYPressed = self.controller.getYButton()
         turningValue = (self.angleSetpoint - self.gyro.getYaw()) * self.pGain
         speed = self.controller.getY(self.controller.Hand.kLeftHand)
-        if speed >= 0:
-            # forwards
-            self.drive.arcadeDrive(speed, turningValue)
-        elif speed < 0:
-            # backwards
-            self.drive.arcadeDrive(speed, -turningValue)
-        print(self.gyro.getYaw(), turningValue, self.pGain)
-        print(self.controller.getY(self.controller.Hand.kLeftHand), self.controller.getY(self.controller.Hand.kRightHand))
+        self.sd.putValue("Speed",speed)
+        if self.isBPressed:
+            if speed < 0:
+                # forwards
+                self.drive.arcadeDrive(speed, turningValue)
+            elif speed >= 0:
+                # backwards
+                self.drive.arcadeDrive(speed, -1 *turningValue)
+        else:
+            self.drive.arcadeDrive(speed, self.controller.getY(self.controller.Hand.kRightHand))
+        if self.isYPressed:
+            self.gyro.reset()
         self.sd.putValue("Gyro Yaw", self.gyro.getYaw())
         self.sd.putValue("Turning Value", turningValue)
         self.sd.putValue("PGain", self.pGain)
-
-
+        self.sd.putValue("Straight", self.isBPressed)
 
 
 if __name__ == "__main__":
