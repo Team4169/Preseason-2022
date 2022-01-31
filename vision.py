@@ -26,8 +26,8 @@ def main():
     cs.enableLogging()
 
     # camera = cs.startAutomaticCapture()
-    cam1 = CameraServer.startAutomaticCapture(dev=0)
-    cam2 = CameraServer.startAutomaticCapture(dev=1)
+    cam1 = cs.startAutomaticCapture(dev=0)
+    cam2 = cs.startAutomaticCapture(dev=1)
 
     cs.waitForever()
 
