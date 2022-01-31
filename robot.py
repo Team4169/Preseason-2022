@@ -56,19 +56,20 @@ class MyRobot(wpilib.TimedRobot):
         motor speed is set from the joystick while the RobotDrive turning value is assigned
         from the error between the setpoint and the gyro angle.
         """
-        self.pGain = self.sd.getValue("PGain", 0.2)
+        self.pGain = self.sd.getValue("PGain", 0.032)
         self.isBPressed = self.controller.getBButton()
         self.isYPressed = self.controller.getYButton()
         turningValue = (self.angleSetpoint - self.gyro.getYaw()) * self.pGain
         speed = self.controller.getY(self.controller.Hand.kLeftHand)
-        self.sd.putValue("Speed",speed)
+        self.sd.putValue("Speed", speed)
         if self.isBPressed:
             if speed < 0:
                 # forwards
                 self.drive.arcadeDrive(speed, turningValue)
             elif speed >= 0:
                 # backwards
-                self.drive.arcadeDrive(speed, -1 *turningValue)
+                self.drive.arcadeDrive(speed, turningValue)
+            # self.drive.arcadeDrive(speed, turningValue)
         else:
             self.drive.arcadeDrive(speed, self.controller.getY(self.controller.Hand.kRightHand))
         if self.isYPressed:
