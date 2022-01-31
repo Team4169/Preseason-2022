@@ -38,7 +38,7 @@ class MyRobot(wpilib.TimedRobot):
         self.controller = wpilib.XboxController(0)
         self.timer = wpilib.Timer()
         self.sd = NetworkTables.getTable("SmartDashboard")
-        self.gyro = navx.AHRS.create_i2c(wpilib.I2C.Port.kOnboard)
+        self.gyro = navx.AHRS.create_i2c(wpilib.I2C.Port.kMXP)
 
 
     def teleopInit(self):
