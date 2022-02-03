@@ -21,7 +21,7 @@ class MyRobot(wpilib.TimedRobot):
         self.right = wpilib.SpeedControllerGroup(
             self.front_right_motor, self.rear_right_motor)
         self.neo = rev.CANSparkMax(2, rev.CANSparkMaxLowLevel.MotorType.kBrushless)
-        
+        self.encoder = self.neo.getEncoder()
         self.drive = wpilib.drive.DifferentialDrive(
             self.right,
             self.left
@@ -40,6 +40,7 @@ class MyRobot(wpilib.TimedRobot):
             self.controller.getLeftY(),
             self.controller.getLeftY() * -1)
         self.neo.set(0.2)
+        print(self.encoder.getPosition())
 
 
 if __name__ == "__main__":
