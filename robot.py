@@ -3,6 +3,7 @@ import wpilib
 import wpilib.drive
 import ctre
 from constants import constants
+import rev
 
 class MyRobot(wpilib.TimedRobot):
 
@@ -19,7 +20,8 @@ class MyRobot(wpilib.TimedRobot):
         self.rear_right_motor = ctre.WPI_TalonSRX(constants["rearRightPort"])
         self.right = wpilib.SpeedControllerGroup(
             self.front_right_motor, self.rear_right_motor)
-
+        self.neo = rev.CANSparkMax(2, rev.CANSparkMaxLowLevel.MotorType.kBrushless)
+        
         self.drive = wpilib.drive.DifferentialDrive(
             self.right,
             self.left
@@ -37,6 +39,7 @@ class MyRobot(wpilib.TimedRobot):
         self.drive.tankDrive(
             self.controller.getLeftY(),
             self.controller.getLeftY() * -1)
+        self.neo.set(0.2)
 
 
 if __name__ == "__main__":
