@@ -5,6 +5,7 @@ from constants import constants
 from networktables import NetworkTables
 import navx
 
+
 class MyRobot(wpilib.TimedRobot):
     """This is a demo program showing how to use Gyro control with the
     DifferentialDrive class."""
@@ -36,6 +37,9 @@ class MyRobot(wpilib.TimedRobot):
         )
 
         self.front_left_motor.configSelectedFeedbackSensor(ctre.FeedbackDevice.QuadEncoder, 0, 0)
+        self.rear_right_motor.configSelectedFeedbackSensor(ctre.FeedbackDevice.QuadEncoder, 0, 0)
+        self.rear_right_motor.setInverted(True)
+        self.front_right_motor.setInverted(True)
         self.controller = wpilib.XboxController(0)
         self.timer = wpilib.Timer()
         self.sd = NetworkTables.getTable("SmartDashboard")
@@ -48,6 +52,7 @@ class MyRobot(wpilib.TimedRobot):
         """
         self.gyro.reset()
         self.front_left_motor.setSelectedSensorPosition(0, 0, 10)
+        self.rear_right_motor.setSelectedSensorPosition(0, 0, 10)
         # self.gyro.setSensitivity(
             # self.voltsPerDegreePerSecond
         # )  # calibrates gyro values to equal degrees
@@ -58,30 +63,49 @@ class MyRobot(wpilib.TimedRobot):
         motor speed is set from the joystick while the RobotDrive turning value is assigned
         from the error between the setpoint and the gyro angle.
         """
-        self.pGain = self.sd.getValue("PGain", 0.032)
-        self.dist = self.sd.getValue("Drive Dist", 5) * self.left_tpf
-        self.error = self.dist - self.front_left_motor.getSelectedSensorPosition()
-        self.kP = self.sd.getValue("kP", 0.05)
         self.isAPressed = self.controller.getAButton()
         self.isBPressed = self.controller.getBButton()
         self.isXPressed = self.controller.getXButton()
         self.isYPressed = self.controller.getYButton()
-        turningValue = (self.angleSetpoint - self.gyro.getYaw()) * self.pGain
+        self.dist = self.sd.getValue("Drive Dist", 5) * self.left_tpf
         # speed = self.controller.getY(self.controller.Hand.kLeftHand)
-        speed = self.error * self.kP
-        self.sd.putValue("Speed", speed)
         self.sd.putValue("Left Encoder Value", self.front_left_motor.getSelectedSensorPosition())
-        if self.isBPressed and abs(self.front_left_motor.getSelectedSensorPosition()) < abs(self.dist):
-            self.drive.arcadeDrive(speed, turningValue)
-        else:
-            self.drive.arcadeDrive(self.controller.getY(self.controller.Hand.kLeftHand), self.controller.getY(self.controller.Hand.kRightHand))
-        if self.isYPressed:
+        self.sd.putValue("Right Encoder Value", self.rear_right_motor.getSelectedSensorPosition())
+        self.drive.arcadeDrive(self.controller.getRightY(), self.controller.getLeftY())
+        if self.isBPressed:
+            self.sd.putValue("dist", self.dist)
+            self.drive_straight(self.dist, 0)
+        elif self.isAPressed:
+            self.drive_straight(0, 90)
+        elif self.isYPressed:
             self.gyro.reset()
+            self.front_left_motor.setSelectedSensorPosition(0, 0, 10)
+            self.rear_right_motor.setSelectedSensorPosition(0, 0, 10)
+
+    def drive_straight(self, dist, angle):
+        self.angleSetpoint = angle
+        self.pGain = self.sd.getValue("PGain", 0.032)
+        self.error = dist - self.front_left_motor.getSelectedSensorPosition()
+        self.kP = self.sd.getValue("kP", 0.05)
+        # self.kI = self.sd.getValue("kI", 0.05)
+        turningValue = (self.angleSetpoint - self.gyro.getYaw()) * self.pGain
+        if turningValue > 1:
+            turningValue = 1
+        if turningValue < -1:
+            turningValue = -1
+        speed = self.error * self.kP
+        if speed > 0.75:
+            speed = 0.75
+        if speed < -0.75:
+            speed = -0.75
+        if abs(self.front_left_motor.getSelectedSensorPosition()) < abs(self.dist):
+            self.drive.arcadeDrive(speed, turningValue)
         self.sd.putValue("Gyro Yaw", self.gyro.getYaw())
         self.sd.putValue("Turning Value", turningValue)
         self.sd.putValue("PGain", self.pGain)
         self.sd.putValue("Straight", self.isBPressed)
         self.sd.putValue("error", self.error)
+        self.sd.putValue("Speed", speed)
 
 
 if __name__ == "__main__":
