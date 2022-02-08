@@ -38,8 +38,6 @@ class MyRobot(wpilib.TimedRobot):
 
         self.front_left_motor.configSelectedFeedbackSensor(ctre.FeedbackDevice.QuadEncoder, 0, 0)
         self.rear_right_motor.configSelectedFeedbackSensor(ctre.FeedbackDevice.QuadEncoder, 0, 0)
-        self.rear_right_motor.setInverted(True)
-        self.front_right_motor.setInverted(True)
         self.controller = wpilib.XboxController(0)
         self.timer = wpilib.Timer()
         self.sd = NetworkTables.getTable("SmartDashboard")
