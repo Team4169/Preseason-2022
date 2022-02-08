@@ -4,20 +4,20 @@ import ctre
 from constants import constants
 from networktables import NetworkTables
 import navx
-import Encoder
+# import Encode
 
 
 class MyRobot(wpilib.TimedRobot):
     def robotInit(self):
         self.front_left_motor = ctre.WPI_TalonSRX(constants["frontLeftPort"])
         self.rear_left_motor = ctre.WPI_VictorSPX(constants["rearLeftPort"])
-        self.rear_left_motor.setInverted(True)
         self.left = wpilib.SpeedControllerGroup(
             self.front_left_motor, self.rear_left_motor)
 
-        self.front_right_motor = ctre.WPI_TalonSRX(constants["frontRightPort"])
-        self.rear_right_motor = ctre.WPI_VictorSPX(constants["rearRightPort"])
+        self.front_right_motor = ctre.WPI_VictorSPX(constants["frontRightPort"])
+        self.rear_right_motor = ctre.WPI_TalonSRX(constants["rearRightPort"])
         self.rear_right_motor.setInverted(True)
+        self.front_right_motor.setInverted(True)
         self.right = wpilib.SpeedControllerGroup(
             self.front_right_motor, self.rear_right_motor)
 
@@ -32,10 +32,10 @@ class MyRobot(wpilib.TimedRobot):
         self.gyro = navx.AHRS.create_i2c()
         self.front_left_motor.configSelectedFeedbackSensor(
             ctre.FeedbackDevice.QuadEncoder, 0, 0)
-        self.front_right_motor.configSelectedFeedbackSensor(
+        self.rear_right_motor.configSelectedFeedbackSensor(
             ctre.FeedbackDevice.QuadEncoder, 0, 0)
 
-    def autnomousInit(self):
+    def autonomousInit(self):
         self.timer.reset()
         self.timer.start()
 
@@ -43,37 +43,39 @@ class MyRobot(wpilib.TimedRobot):
         path = 1
         if path == 1:
             if self.timer.get() < 2:
-                self.drive.arcadeDrive(0.5, 0.5)
+                self.drive.arcadeDrive(0.5, 0)
             elif self.timer.get() < 2.5:
-                self.drive.arcadeDrive(0.2, 0)
+                self.drive.arcadeDrive(0, 0.5)
             elif self.timer.get() < 3.5:
-                self.drive.arcadeDrive(0.2, 0.2)
+                self.drive.arcadeDrive(0.5, 0)
             elif self.timer.get() < 5:
                 # where the ball motors run
-                pass
+                self.drive.arcadeDrive(0,0)
+
             elif self.timer.get() < 6:
-                self.drive.arcadeDrive(-0.2, -0.2)
+                self.drive.arcadeDrive(-0.5, 0)
             elif self.timer.get() < 6.5:
-                self.drie.arcadeDrive(0.5, 0)
+                self.drive.arcadeDrive(0, 0.75)
             elif self.timer.get() < 7.5:
-                self.drive.arcadeDrive(0.75, 0.75)
+                self.drive.arcadeDrive(0.75, 0)
                 # Run the ball catching motors
             elif self.timer.get() < 8:
-                self.drive.arcadeDrive(0, 0.5)
+                self.drive.arcadeDrive(0, 0.75)
             elif self.timer.get() < 9:
-                self.drive.arcadeDrive(0.75, 0.75)
+                self.drive.arcadeDrive(0.75, 0)
             elif self.timer.get() < 9.5:
-                self.drive.arcadeDrive(0.2, 0)
+                self.drive.arcadeDrive(0, 0.5)
             elif self.timer.get() < 10.5:
-                self.drive.arcadeDrive(0.2, 0.2)
+                self.drive.arcadeDrive(0.5, 0)
             elif self.timer.get() < 12:
-            # Run more robot ball catching motors, but this time, deposit the ball
+                # Run more robot ball catching motors, but this time, deposit the ball
+                self.drive.arcadeDrive(0,0)
             elif self.timer.get() < 15:
-                self.drive.arcadeDrive(-0.1, -0.1)
+                self.drive.arcadeDrive(-0.5, 0)
             else:
-                pass
+                self.drive.arcadeDrive(0,0)
 
-        if part == 2:
+        if path == 2:
             self.pGain = self.sd.getValue("PGain", 0.032)
             # self.dist = self.sd.getValue("Drive Dist", 5) * self.left_tpf
             self.error = self.dist - self.front_left_motor.getSelectedSensorPosition()
