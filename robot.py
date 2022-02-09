@@ -27,6 +27,8 @@ class MyRobot(wpilib.TimedRobot):
 
         self.rear_right_motor = ctre.WPI_TalonSRX(constants["rearRightPort"])
         self.front_right_motor = ctre.WPI_VictorSPX(constants["frontRightPort"])
+        self.rear_right_motor.setInverted(True)
+        self.front_right_motor.setInverted(True)
         self.right = wpilib.SpeedControllerGroup(
             self.front_right_motor, self.rear_right_motor)
 
@@ -41,7 +43,7 @@ class MyRobot(wpilib.TimedRobot):
         self.sd = NetworkTables.getTable("SmartDashboard")
         self.gyro = navx.AHRS.create_i2c(wpilib.I2C.Port.kMXP)
         #change to negative if necessary
-        self.tpf = 924
+        self.tpf = -924
         self.max_speed = 0.4
 
     def teleopInit(self):
@@ -54,7 +56,9 @@ class MyRobot(wpilib.TimedRobot):
         # self.voltsPerDegreePerSecond
         # )  # calibrates gyro values to equal degrees
         self.pGain = self.sd.getValue("PGain", 0.032)
-        self.kP = self.sd.getValue("kP", 0.05)
+        # self.kP = self.sd.getValue("kP", 0.03)
+        self.kP = 0.03
+        self.sd.putValue("kP",self.kP)
         self.steps = [{
             "Step_Type": "Straight", #Step_Type says whether we will be driving forward, or turning in this step
             "Distance": 3, # How far we need to move forward in this step
@@ -93,27 +97,33 @@ class MyRobot(wpilib.TimedRobot):
         self.isBPressed = self.controller.getBButton()
         self.isXPressed = self.controller.getXButton()
         self.isYPressed = self.controller.getYButton()
+        # self.drive.arcadeDrive(.5,0)
+        # return
         if self.isXPressed: #Use X to cancel program
             self.steps_complete = True
             return
         if self.steps_complete:
             return
+
+        self.goal_tick_dist = self.current_step['Distance'] * self.tpf
+        self.goal_angle = self.current_step['Angle']
+
         if self.in_threshold:
             self.in_threshold_time = self.timer.get() - self.in_threshold_start_time
         else:
             self.in_threshold_time = 0
         #Determine if in threshold
         if self.current_step['Step_Type'] == "Straight":
-            current_in_threshold = abs(self.goal_tick_dist - self.front_left_motor.getSelectedSensorPosition()) < self.current_step[
+            current_in_threshold = abs(self.goal_tick_dist - self.front_left_motor.getSelectedSensorPosition()) / self.tpf< self.current_step[
                 'Threshold_Value']
         elif self.current_step['Step_Type'] == "Turn":
             current_in_threshold = self.goal_angle - self.gyro.getYaw() < self.current_step['Threshold_Value']
-
+        self.sd.putValue("Current_in_threshold",current_in_threshold)
         if current_in_threshold:
             if self.in_threshold == False:
                 #Just entered the threshold
                 self.in_threshold = True
-                self.in_thershold_start_time = self.timer.get()
+                self.in_threshold_start_time = self.timer.get()
             if self.in_threshold_time > self.current_step['Threshold_Time']:
                 #Been in threshold for a good amount of time, move to next step
                 self.current_step_index += 1
@@ -129,18 +139,18 @@ class MyRobot(wpilib.TimedRobot):
 
         #Setting Speed
         if self.current_step['Step_Type'] == "Straight":
-            self.goal_tick_dist = self.current_step['Distance'] * self.tpf
             self.distance_error = self.goal_tick_dist - self.front_left_motor.getSelectedSensorPosition()
-            self.speed = self.distance_error * self.kP
+            self.speed = self.distance_error * self.kP * -1
             if self.speed > self.max_speed:
                 self.speed = self.max_speed
             if self.speed < self.max_speed * -1:
                 self.speed = -1 * self.max_speed
         elif self.current_step['Step_Type'] == "Turn":
             self.speed = 0 # we don't want to move forward when turning (turn in place)
+            self.goal_tick_dist = None
+            self.distance_error = None
 
         #Setting Angle - this drives helps drive
-        self.goal_angle = self.current_step['Angle']
         turningValue = (self.goal_angle - self.gyro.getYaw()) * self.pGain
 
         #move the robot
