@@ -91,6 +91,8 @@ class MyRobot(wpilib.TimedRobot):
         self.in_threshold_start_time = 0
         self.in_threshold = False
         self.steps_complete = False
+        self.timer.reset()
+        self.timer.start()
 
     def teleopPeriodic(self):
         self.isAPressed = self.controller.getAButton()
