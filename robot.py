@@ -61,7 +61,7 @@ class MyRobot(wpilib.TimedRobot):
         self.sd.putValue("kP",self.kP)
         self.steps = [{
             "Step_Type": "Straight", #Step_Type says whether we will be driving forward, or turning in this step
-            "Distance": 3, # How far we need to move forward in this step
+            "Distance": 5, # How far we need to move forward in this step
             "Angle": 0, # What angle we need to turn to in this step
             "Threshold_Value": .1, # To complete the step, we need to be within the threshold feet of the target distance
             "Threshold_Time": 1, # Once we are in the threshold for this amount of time, we move to the next step
@@ -69,7 +69,7 @@ class MyRobot(wpilib.TimedRobot):
             "Step_Type": "Turn",
             "Distance": 0,
             "Angle": 90,
-            "Threshold_Value": 1,
+            "Threshold_Value": 5,
             "Threshold_Time": 1,
         },{
             "Step_Type": "Straight",
@@ -81,7 +81,7 @@ class MyRobot(wpilib.TimedRobot):
             "Step_Type": "Turn",
             "Distance": 0,
             "Angle": 180,
-            "Threshold_Value": 1,
+            "Threshold_Value": 5,
             "Threshold_Time": 1,
         },
         ]
@@ -153,8 +153,11 @@ class MyRobot(wpilib.TimedRobot):
             self.distance_error = None
 
         #Setting Angle - this drives helps drive
-        turningValue = (self.goal_angle - self.gyro.getYaw()) * self.pGain
-
+        turningValue = (self.goal_angle - self.gyro.getYaw()) * self.pGain * -1
+        if turningValue < -.5:
+            turningValue = -.5
+        if turningValue > .5:
+            turningValue = .5
         #move the robot
         self.drive.arcadeDrive(self.speed, turningValue)
 
