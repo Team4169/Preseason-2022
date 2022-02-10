@@ -1,3 +1,4 @@
+from locale import normalize
 import wpilib
 from wpilib.drive import DifferentialDrive
 import ctre
@@ -65,24 +66,48 @@ class MyRobot(wpilib.TimedRobot):
             "Angle": 0, # What angle we need to turn to in this step
             "Threshold_Value": .1, # To complete the step, we need to be within the threshold feet of the target distance
             "Threshold_Time": 1, # Once we are in the threshold for this amount of time, we move to the next step
-        },{
+        },{ #top left turn
             "Step_Type": "Turn",
             "Distance": 0,
             "Angle": 90,
             "Threshold_Value": 5,
-            "Threshold_Time": 1,
+            "Threshold_Time": 1, 
         },{
             "Step_Type": "Straight",
-            "Distance": 3,
+            "Distance": 5,
             "Angle": 90,
             "Threshold_Value": .1,
             "Threshold_Time": 1,
-        },{
+        },{# top right turn
             "Step_Type": "Turn",
             "Distance": 0,
             "Angle": 180,
             "Threshold_Value": 5,
+            "Threshold_Time": 1, 
+        },{
+            "Step_Type": "Straight",
+            "Distance": 5,
+            "Angle": 180,
+            "Threshold_Value": .1,
             "Threshold_Time": 1,
+        },{#bottom right turn
+            "Step_Type": "Turn",
+            "Distance": 0,
+            "Angle": -90,
+            "Threshold_Value": 5,
+            "Threshold_Time": 1, 
+        },{
+            "Step_Type": "Straight",
+            "Distance": 5,
+            "Angle": -90,
+            "Threshold_Value": .1,
+            "Threshold_Time": 1,
+        },{#bottome left turn back to orientation at the start
+            "Step_Type": "Turn",
+            "Distance": 0,
+            "Angle": 0,
+            "Threshold_Value": 5,
+            "Threshold_Time": 1, 
         },
         ]
         self.current_step_index = 0
@@ -156,7 +181,8 @@ class MyRobot(wpilib.TimedRobot):
             self.distance_error = None
 
         #Setting Angle - this drives helps drive
-        turningValue = (self.goal_angle - self.gyro.getYaw()) * self.pGain * -1
+        normalizeYaw = self.gyro.getYaw()
+        turningValue = (self.goal_angle - normalizeYaw) * self.pGain * -1
         if turningValue < -.5:
             turningValue = -.5
         if turningValue > .5:
