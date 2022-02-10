@@ -94,6 +94,9 @@ class MyRobot(wpilib.TimedRobot):
         self.timer.reset()
         self.timer.start()
 
+    def autonomousPeriodic(self):
+        self.sd.putValue("Left Encoder Value", self.front_left_motor.getSelectedSensorPosition())
+
     def teleopPeriodic(self):
         self.isAPressed = self.controller.getAButton()
         self.isBPressed = self.controller.getBButton()
@@ -116,7 +119,7 @@ class MyRobot(wpilib.TimedRobot):
             self.in_threshold_time = 0
         #Determine if in threshold
         if self.current_step['Step_Type'] == "Straight":
-            current_in_threshold = abs(self.goal_tick_dist - self.front_left_motor.getSelectedSensorPosition()) / self.tpf< self.current_step[
+            current_in_threshold = -1 * abs(self.goal_tick_dist - self.front_left_motor.getSelectedSensorPosition()) / self.tpf < self.current_step[
                 'Threshold_Value']
         elif self.current_step['Step_Type'] == "Turn":
             current_in_threshold = self.goal_angle - self.gyro.getYaw() < self.current_step['Threshold_Value']
@@ -163,6 +166,7 @@ class MyRobot(wpilib.TimedRobot):
 
         #print debug values
 
+        # self.sd.putValue("debug value for inthreshold",abs(self.goal_tick_dist - self.front_left_motor.getSelectedSensorPosition()) / self.tpf)
         self.sd.putValue("IsBPressed", self.isBPressed)
         self.sd.putValue("current_step_index", self.current_step_index)
         self.sd.putValue("Step Type", self.current_step['Step_Type'])
