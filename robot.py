@@ -5,7 +5,7 @@ import ctre
 from constants import constants
 from networktables import NetworkTables
 import navx
-import wpimath
+import wpimath.controller
 
 class MyRobot(wpilib.TimedRobot):
     """This is a demo program showing how to use Gyro control with the
@@ -106,10 +106,10 @@ class MyRobot(wpilib.TimedRobot):
             return
 
         self.goal_tick_dist = self.current_step['Distance'] * self.tpf
-        self.driveController.setSetpoint(goal_tick_dist)
+        self.driveController.setSetpoint(self.goal_tick_dist)
 
         self.goal_angle = self.current_step['Angle']
-        self.turnController.setSetpoint(goal_angle)
+        self.turnController.setSetpoint(self.goal_angle)
 
         if self.in_threshold:
             self.in_threshold_time = self.timer.get() - self.in_threshold_start_time
@@ -128,7 +128,7 @@ class MyRobot(wpilib.TimedRobot):
             self.goal_tick_dist = None
 
         #Setting Angle - this drives helps drive straight and turn
-        self.speed = self.driveController.calculate(self.gyro.getYaw(), self.goal_angle)
+        turningValue = self.driveController.calculate(self.gyro.getYaw(), self.goal_angle)
         if turningValue < -.5:
             turningValue = -.5
         if turningValue > .5:
