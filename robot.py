@@ -59,8 +59,8 @@ class MyRobot(wpilib.TimedRobot):
         self.turnController = turnController
 
         # Create PID Controller for Drive
-        self.DrivekP = 0.04
-        self.DrivekI = self.sd.getValue("DrivekI",0)
+        self.DrivekP = 0.03
+        self.DrivekI = self.sd.getValue("DrivekI",0.02)
         self.DrivekD = self.sd.getValue("DrivekD",0)
 
         driveController = wpimath.controller.PIDController(
@@ -155,7 +155,8 @@ class MyRobot(wpilib.TimedRobot):
                     self.current_step = self.steps[self.current_step_index]
                 self.front_left_motor.setSelectedSensorPosition(0, 0, 10)
                 if self.current_step["Step_Type"] == "Straight":
-                    self.driveController.setTolerance(self.current_step["Threshold_Value"])
+                    self.sd.putValue("drive tolerance", abs(self.current_step["Threshold_Value"] * self.tpf))
+                    self.driveController.setTolerance(abs(self.current_step["Threshold_Value"] * self.tpf))
                 elif self.current_step["Step_Type"] == "Turn":
                     self.turnController.setTolerance(self.current_step["Threshold_Value"])
                 self.in_threshold = False
