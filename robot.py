@@ -59,7 +59,7 @@ class MyRobot(wpilib.TimedRobot):
         self.turnController = turnController
 
         # Create PID Controller for Drive
-        self.DrivekP = 0.03
+        self.DrivekP = 0.04
         self.DrivekI = self.sd.getValue("DrivekI",0)
         self.DrivekD = self.sd.getValue("DrivekD",0)
 
@@ -118,7 +118,7 @@ class MyRobot(wpilib.TimedRobot):
 
         #Setting Speed
         if self.current_step['Step_Type'] == "Straight":
-            self.speed = self.driveController.calculate(self.front_left_motor.getSelectedSensorPosition(), self.goal_tick_dist)
+            self.speed = -1 * self.driveController.calculate(self.front_left_motor.getSelectedSensorPosition(), self.goal_tick_dist)
             if self.speed > self.max_speed:
                 self.speed = self.max_speed
             if self.speed < self.max_speed * -1:
@@ -128,7 +128,7 @@ class MyRobot(wpilib.TimedRobot):
             self.goal_tick_dist = None
 
         #Setting Angle - this drives helps drive straight and turn
-        turningValue = self.driveController.calculate(self.gyro.getYaw(), self.goal_angle)
+        turningValue = -1 * self.turnController.calculate(self.gyro.getYaw(), self.goal_angle)
         if turningValue < -.5:
             turningValue = -.5
         if turningValue > .5:
@@ -168,6 +168,8 @@ class MyRobot(wpilib.TimedRobot):
         #print debug values
 
         # self.sd.putValue("debug value for inthreshold",abs(self.goal_tick_dist - self.front_left_motor.getSelectedSensorPosition()) / self.tpf)
+        self.sd.putValue("at setpoint", self.driveController.atSetpoint())
+        self.sd.putValue("setpoint", self.driveController.getSetpoint())
         self.sd.putValue("IsBPressed", self.isBPressed)
         self.sd.putValue("current_step_index", self.current_step_index)
         self.sd.putValue("Step Type", self.current_step['Step_Type'])
