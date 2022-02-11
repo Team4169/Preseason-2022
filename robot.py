@@ -60,31 +60,57 @@ class MyRobot(wpilib.TimedRobot):
         # self.kP = self.sd.getValue("kP", 0.03)
         self.kP = 0.03
         self.sd.putValue("kP",self.kP)
+        #fwd
+        #turn to be in line with the ball behind
+        #fwd little
+        # put ball in
+        # back little
+        # turn fully around to get the 2nd ball not in the robot
+        # Straight to get to ball 
+        #Turn around again to be in line wit the hopper
+        # Straight to hopper
+        #put ball in
+        # turn around
+        # exit s
+
         self.steps = [{
             "Step_Type": "Straight", #Step_Type says whether we will be driving forward, or turning in this step
-            "Distance": 5, # How far we need to move forward in this step
+            "Distance": 3.6666, # How far we need to move forward in this step
             "Angle": 0, # What angle we need to turn to in this step
             "Threshold_Value": .1, # To complete the step, we need to be within the threshold feet of the target distance
             "Threshold_Time": 1, # Once we are in the threshold for this amount of time, we move to the next step
-        },{ #top left turn
+        },
+        { #top left turn
             "Step_Type": "Turn",
             "Distance": 0,
-            "Angle": 90,
+            "Angle": 65,
             "Threshold_Value": 5,
             "Threshold_Time": 1, 
         },{
             "Step_Type": "Straight",
-            "Distance": 5,
-            "Angle": 90,
+            "Distance": .75,
+            "Angle": 65,
+            "Threshold_Value": .1,
+            "Threshold_Time": 1,
+        },{
+            "Step_Type": "Straight",
+            "Distance": -.75,
+            "Angle": 65,
             "Threshold_Value": .1,
             "Threshold_Time": 1,
         },{# top right turn
             "Step_Type": "Turn",
             "Distance": 0,
+            "Angle": 0,
+            "Threshold_Value": 5,
+            "Threshold_Time": 1, 
+        },{# 
+            "Step_Type": "Turn",
+            "Distance": 0,
             "Angle": 180,
             "Threshold_Value": 5,
             "Threshold_Time": 1, 
-        },{
+        },"""{
             "Step_Type": "Straight",
             "Distance": 5,
             "Angle": 180,
@@ -108,7 +134,7 @@ class MyRobot(wpilib.TimedRobot):
             "Angle": 0,
             "Threshold_Value": 5,
             "Threshold_Time": 1, 
-        },
+        },"""
         ]
         self.current_step_index = 0
         self.current_step = self.steps[self.current_step_index]
