@@ -29,8 +29,6 @@ class MyRobot(commands2.TimedCommandRobot):
 
     def disabledInit(self) -> None:
         """This function is called once each time the robot enters Disabled mode."""
-        if self.autonomousCommand:
-            self.autonomousCommand.cancel()
 
     def disabledPeriodic(self) -> None:
         """This function is called periodically when disabled"""

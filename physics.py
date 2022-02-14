@@ -9,13 +9,8 @@
 # of your robot code without too much extra effort.
 #
 
-from wpilib import RobotController, ADXRS450_Gyro
-from wpilib.simulation import (
-    PWMSim,
-    DifferentialDrivetrainSim,
-    EncoderSim,
-    AnalogGyroSim,
-)
+import wpilib
+import wpilib.simulation
 from wpimath.system import LinearSystemId
 from wpimath.system.plant import DCMotor
 
@@ -35,43 +30,25 @@ class PhysicsEngine:
 
         self.physics_controller = physics_controller
 
-        # Motor simulation definitions. Each correlates to a motor defined in
-        # the drivetrain subsystem.
-        self.frontLeftMotor = PWMSim(constants.kLeftMotor1Port)
-        self.backLeftMotor = PWMSim(constants.kLeftMotor2Port)
-        self.frontRightMotor = PWMSim(constants.kRightMotor1Port)
-        self.backRightMotor = PWMSim(constants.kRightMotor2Port)
+        # Motors
+        self.l_motor = wpilib.simulation.PWMSim(1)
+        self.r_motor = wpilib.simulation.PWMSim(2)
 
-        self.system = LinearSystemId.identifyDrivetrainSystem(
-            constants.kvVoltSecondsPerMeter,  # The linear velocity gain in volt seconds per distance.
-            constants.kaVoltSecondsSquaredPerMeter,  # The linear acceleration gain, in volt seconds^2 per distance.
-            1.5,  # The angular velocity gain, in volt seconds per angle.
-            0.3,  # The angular acceleration gain, in volt seconds^2 per angle.
-        )
-
-        # The simulation model of the drivetrain.
-        self.drivesim = DifferentialDrivetrainSim(
-            # The state-space model for a drivetrain.
+        self.system = LinearSystemId.identifyDrivetrainSystem(1.98, 0.2, 1.5, 0.3)
+        self.drivesim = wpilib.simulation.DifferentialDrivetrainSim(
             self.system,
-            # The robot's trackwidth, which is the distance between the wheels on the left side
-            # and those on the right side. The units is meters.
-            constants.kTrackWidthMeters,
-            # Four NEO drivetrain setup.
-            DCMotor.NEO(constants.kDrivetrainMotorCount),
-            # One to one output gearing.
-            1,
-            # The radius of the drivetrain wheels in meters.
-            (constants.kWheelDiameterMeters / 2),
+            constants.kTrackWidth,
+            DCMotor.CIM(constants.kDriveTrainMotorCount),
+            constants.kGearingRatio,
+            constants.kWheelRadius,
         )
 
-        self.leftEncoderSim = EncoderSim.createForChannel(
+        self.leftEncoderSim = wpilib.simulation.EncoderSim.createForChannel(
             constants.kLeftEncoderPorts[0]
         )
-        self.rightEncoderSim = EncoderSim.createForChannel(
+        self.rightEncoderSim = wpilib.simulation.EncoderSim.createForChannel(
             constants.kRightEncoderPorts[0]
         )
-
-        self.gyro = AnalogGyroSim(1)
 
     def update_sim(self, now: float, tm_diff: float) -> None:
         """
@@ -84,18 +61,16 @@ class PhysicsEngine:
         """
 
         # Simulate the drivetrain
-        l_motor = self.frontLeftMotor.getSpeed()
-        r_motor = self.frontRightMotor.getSpeed()
+        l_motor = self.l_motor.getSpeed()
+        r_motor = self.r_motor.getSpeed()
 
-        self.gyro.setAngle(-self.drivesim.getHeading().degrees())
-
-        voltage = RobotController.getInputVoltage()
-        self.drivesim.setInputs(l_motor * voltage, -r_motor * voltage)
+        voltage = wpilib.RobotController.getInputVoltage()
+        self.drivesim.setInputs(l_motor * voltage, r_motor * voltage)
         self.drivesim.update(tm_diff)
 
-        self.leftEncoderSim.setDistance(self.drivesim.getLeftPosition())
-        self.leftEncoderSim.setRate(self.drivesim.getLeftVelocity())
-        self.rightEncoderSim.setDistance(self.drivesim.getRightPosition())
-        self.rightEncoderSim.setRate(self.drivesim.getRightVelocity())
+        self.leftEncoderSim.setDistance(self.drivesim.getLeftPosition() * 39.37)
+        self.leftEncoderSim.setRate(self.drivesim.getLeftVelocity() * 39.37)
+        self.rightEncoderSim.setDistance(self.drivesim.getRightPosition() * 39.37)
+        self.rightEncoderSim.setRate(self.drivesim.getRightVelocity() * 39.37)
 
         self.physics_controller.field.setRobotPose(self.drivesim.getPose())
