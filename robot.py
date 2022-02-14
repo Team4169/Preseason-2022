@@ -72,7 +72,7 @@ class MyRobot(wpilib.TimedRobot):
         self.driveController = driveController
 
 
-    def teleopInit(self):
+    def autonomousInit(self):
         """
         Runs at the beginning of the teleop period
         """
@@ -89,10 +89,10 @@ class MyRobot(wpilib.TimedRobot):
         self.timer.reset()
         self.timer.start()
 
-    def autonomousPeriodic(self):
+    def teleopPeriodic(self):
         self.sd.putValue("Left Encoder Value", self.front_left_motor.getSelectedSensorPosition())
 
-    def teleopPeriodic(self):
+    def autonomousPeriodic(self):
         self.isAPressed = self.controller.getAButton()
         self.isBPressed = self.controller.getBButton()
         self.isXPressed = self.controller.getXButton()
