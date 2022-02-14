@@ -3,6 +3,7 @@ import wpilib
 import wpilib.drive
 import ctre
 import constants
+from networktables import NetworkTables
 
 
 class DriveSubsystem(commands2.SubsystemBase):
@@ -13,7 +14,7 @@ class DriveSubsystem(commands2.SubsystemBase):
         self.left2 = ctre.WPI_VictorSPX(constants.kLeftMotor2Port)
         self.right1 = ctre.WPI_VictorSPX(constants.kRightMotor1Port)
         self.right2 = ctre.WPI_TalonSRX(constants.kRightMotor2Port)
-
+        self.sd = NetworkTables.getTable("SmartDashboard")
         # The robot's drive
         self.drive = wpilib.drive.DifferentialDrive(
             wpilib.SpeedControllerGroup(self.left1, self.left2),
@@ -56,7 +57,9 @@ class DriveSubsystem(commands2.SubsystemBase):
 
     def getAverageEncoderDistance(self) -> float:
         """Gets the average distance of the TWO encoders."""
-        return (self.left1.getSelectedSensorPosition() + self.right2.getSelectedSensorPosition()) / 2.0
+        self.sd.putValue("Left Encoder Value", self.left1.getSelectedSensorPosition())
+        self.sd.putValue("Right Encoder Value", self.right2.getSelectedSensorPosition())
+        return (self.left1.getSelectedSensorPosition() + self.right2.getSelectedSensorPosition()) / 2.0 * 12 / 924
 
     def setMaxOutput(self, maxOutput: float):
         """
