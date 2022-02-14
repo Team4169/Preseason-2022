@@ -16,6 +16,8 @@ class DriveSubsystem(commands2.SubsystemBase):
         self.right2 = ctre.WPI_TalonSRX(constants.kRightMotor2Port)
         self.sd = NetworkTables.getTable("SmartDashboard")
         # The robot's drive
+        self.right1.setInverted(True)
+        self.right2.setInverted(True)
         self.drive = wpilib.drive.DifferentialDrive(
             wpilib.SpeedControllerGroup(self.left1, self.left2),
             wpilib.SpeedControllerGroup(self.right1, self.right2),
