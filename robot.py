@@ -41,7 +41,7 @@ class MyRobot(wpilib.TimedRobot):
         self.controller = wpilib.XboxController(0)
         self.timer = wpilib.Timer()
         self.sd = NetworkTables.getTable("SmartDashboard")
-        self.gyro = navx.AHRS.create_i2c(wpilib.I2C.Port.kMXP)
+        self.gyro = navx.AHRS(wpilib.SerialPort.Port.kUSB1)
 
         self.tpf = -924
         self.max_speed = 0.4
@@ -78,7 +78,7 @@ class MyRobot(wpilib.TimedRobot):
         """
         self.gyro.reset()
         self.front_left_motor.setSelectedSensorPosition(0, 0, 10)
-        from autos.square import auto
+        from autos.LucAutoStart import auto
         self.steps = auto
         self.current_step_index = 0
         self.current_step = self.steps[self.current_step_index]
