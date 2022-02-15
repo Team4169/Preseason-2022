@@ -44,7 +44,21 @@ class MyRobot(wpilib.TimedRobot):
         self.gyro = navx.AHRS(wpilib.SerialPort.Port.kUSB1)
 
         self.tpf = -924
-        self.max_speed = 0.4
+        self.max_speed = 0.7
+    def autonomousInit(self):
+        """
+        Runs at the beginning of the teleop period
+        """
+        self.gyro.reset()
+        self.front_left_motor.setSelectedSensorPosition(0, 0, 10)
+        from autos.LucAutoStart import auto
+        self.steps = auto
+        self.current_step_index = 0
+        self.current_step = self.steps[self.current_step_index]
+        self.in_threshold_time = 0
+        self.in_threshold_start_time = 0
+        self.in_threshold = False
+        self.steps_complete = False
         # Create PID Controller for Turning
         self.TurnkP = self.sd.getValue("TurnkP", 0.032)
         self.TurnkI = self.sd.getValue("TurnkI",0)
@@ -71,21 +85,6 @@ class MyRobot(wpilib.TimedRobot):
         driveController.setTolerance(-0.1 * self.tpf)
         self.driveController = driveController
 
-
-    def autonomousInit(self):
-        """
-        Runs at the beginning of the teleop period
-        """
-        self.gyro.reset()
-        self.front_left_motor.setSelectedSensorPosition(0, 0, 10)
-        from autos.LucAutoStart import auto
-        self.steps = auto
-        self.current_step_index = 0
-        self.current_step = self.steps[self.current_step_index]
-        self.in_threshold_time = 0
-        self.in_threshold_start_time = 0
-        self.in_threshold = False
-        self.steps_complete = False
         self.timer.reset()
         self.timer.start()
 
