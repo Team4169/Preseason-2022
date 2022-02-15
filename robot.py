@@ -49,6 +49,7 @@ class MyRobot(wpilib.TimedRobot):
         """
         Runs at the beginning of the teleop period
         """
+
         self.gyro.reset()
         self.front_left_motor.setSelectedSensorPosition(0, 0, 10)
         from autos.LucAutoStart import auto
@@ -73,7 +74,7 @@ class MyRobot(wpilib.TimedRobot):
         self.turnController = turnController
 
         # Create PID Controller for Drive
-        self.DrivekP = 0.03
+        self.DrivekP = self.sd.getValue("DrivekP", 0.03)
         self.DrivekI = self.sd.getValue("DrivekI",0.02)
         self.DrivekD = self.sd.getValue("DrivekD",0)
 
