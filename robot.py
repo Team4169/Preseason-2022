@@ -44,7 +44,7 @@ class MyRobot(wpilib.TimedRobot):
         self.gyro = navx.AHRS(wpilib.SerialPort.Port.kUSB1)
 
         self.tpf = -924
-        self.max_speed = 0.7
+        self.max_speed = 0.5
     def autonomousInit(self):
         """
         Runs at the beginning of the teleop period
@@ -61,9 +61,9 @@ class MyRobot(wpilib.TimedRobot):
         self.in_threshold = False
         self.steps_complete = False
         # Create PID Controller for Turning
-        self.TurnkP = self.sd.getValue("TurnkP", 0.032)
-        self.TurnkI = self.sd.getValue("TurnkI",0)
-        self.TurnkD = self.sd.getValue("TurnkD",0)
+        self.TurnkP = self.sd.getValue("TurnkP", 0.025)
+        self.TurnkI = self.sd.getValue("TurnkI",0.03)
+        self.TurnkD = self.sd.getValue("TurnkD",0.015)
         turnController = wpimath.controller.PIDController(
             self.TurnkP,
             self.TurnkI,
