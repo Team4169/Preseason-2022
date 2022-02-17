@@ -20,8 +20,8 @@ class MyRobot(wpilib.TimedRobot):
         self.rear_right_motor = ctre.WPI_TalonSRX(constants["rearRightPort"])
         self.right = wpilib.SpeedControllerGroup(
             self.front_right_motor, self.rear_right_motor)
-        self.neo = rev.CANSparkMax(2, rev.CANSparkMaxLowLevel.MotorType.kBrushless)
-        self.encoder = self.neo.getEncoder()
+        self.neo = rev.CANSparkMax(2, rev.CANSparkMaxLowLevel.MotorType.kBrushed)
+        self.encoder = self.neo.getEncoder(rev.SparkMaxRelativeEncoder.kQuadrature)
         self.drive = wpilib.drive.DifferentialDrive(
             self.right,
             self.left
@@ -39,7 +39,7 @@ class MyRobot(wpilib.TimedRobot):
         self.drive.tankDrive(
             self.controller.getLeftY(),
             self.controller.getLeftY() * -1)
-        self.neo.set(0.2)
+        # self.neo.set(0.2)
         print(self.encoder.getPosition())
 
 
