@@ -21,7 +21,7 @@ class MyRobot(wpilib.TimedRobot):
         self.right = wpilib.SpeedControllerGroup(
             self.front_right_motor, self.rear_right_motor)
         self.neo = rev.CANSparkMax(2, rev.CANSparkMaxLowLevel.MotorType.kBrushed)
-        self.encoder = self.neo.getEncoder(rev.SparkMaxRelativeEncoder.kQuadrature)
+        self.encoder = self.neo.getAlternateEncoder(rev.SparkMaxRelativeEncoder.kQuadrature, 8192)
         self.drive = wpilib.drive.DifferentialDrive(
             self.right,
             self.left
