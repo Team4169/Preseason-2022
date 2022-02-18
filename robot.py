@@ -41,7 +41,6 @@ class MyRobot(wpilib.TimedRobot):
             self.controller.getLeftY() * -1)
         # self.neo.set(0.2)
         print(self.encoder.getPosition())
-        self.sd
 
 
 if __name__ == "__main__":
