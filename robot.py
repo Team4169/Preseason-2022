@@ -21,12 +21,12 @@ class MyRobot(wpilib.TimedRobot):
         # self.voltsPerDegreePerSecond = 0.0128
 
         self.front_left_motor = ctre.WPI_TalonSRX(constants["frontLeftPort"])
-        self.rear_left_motor = ctre.WPI_VictorSPX(constants["rearLeftPort"])
+        self.rear_left_motor = ctre.WPI_TalonSRX(constants["rearLeftPort"])
         self.left = wpilib.SpeedControllerGroup(
             self.front_left_motor, self.rear_left_motor)
 
         self.rear_right_motor = ctre.WPI_TalonSRX(constants["rearRightPort"])
-        self.front_right_motor = ctre.WPI_VictorSPX(constants["frontRightPort"])
+        self.front_right_motor = ctre.WPI_TalonSRX(constants["frontRightPort"])
         self.rear_right_motor.setInverted(True)
         self.front_right_motor.setInverted(True)
         self.right = wpilib.SpeedControllerGroup(

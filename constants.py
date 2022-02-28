@@ -1,6 +1,6 @@
 constants = {
     "frontLeftPort": 8,
-    "rearLeftPort": 12,
+    "rearLeftPort": 2,
     "frontRightPort": 10,
     "rearRightPort": 6,
 }
