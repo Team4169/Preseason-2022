@@ -61,8 +61,11 @@ class MyRobot(wpilib.TimedRobot):
         self.in_threshold = False
         self.steps_complete = False
         # Create PID Controller for Turning
+        self.TurnkP = self.sd.putValue("TurnkP", 0.025)
         self.TurnkP = self.sd.getValue("TurnkP", 0.025)
+        self.TurnkI = self.sd.putValue("TurnkI",0.03)
         self.TurnkI = self.sd.getValue("TurnkI",0.03)
+        self.TurnkD = self.sd.putValue("TurnkD",0.015)
         self.TurnkD = self.sd.getValue("TurnkD",0.015)
         turnController = wpimath.controller.PIDController(
             self.TurnkP,
@@ -74,8 +77,11 @@ class MyRobot(wpilib.TimedRobot):
         self.turnController = turnController
 
         # Create PID Controller for Drive
+        self.DrivekP = self.sd.putValue("DrivekP", 0.03)
         self.DrivekP = self.sd.getValue("DrivekP", 0.03)
+        self.DrivekI = self.sd.putValue("DrivekI",0.02)
         self.DrivekI = self.sd.getValue("DrivekI",0.02)
+        self.DrivekD = self.sd.putValue("DrivekD",0)
         self.DrivekD = self.sd.getValue("DrivekD",0)
 
         driveController = wpimath.controller.PIDController(
