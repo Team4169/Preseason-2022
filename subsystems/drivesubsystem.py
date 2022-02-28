@@ -11,8 +11,8 @@ class DriveSubsystem(commands2.SubsystemBase):
         super().__init__()
 
         self.left1 = ctre.WPI_TalonSRX(constants.kLeftMotor1Port)
-        self.left2 = ctre.WPI_VictorSPX(constants.kLeftMotor2Port)
-        self.right1 = ctre.WPI_VictorSPX(constants.kRightMotor1Port)
+        self.left2 = ctre.WPI_TalonSRX(constants.kLeftMotor2Port)
+        self.right1 = ctre.WPI_TalonSRX(constants.kRightMotor1Port)
         self.right2 = ctre.WPI_TalonSRX(constants.kRightMotor2Port)
         self.sd = NetworkTables.getTable("SmartDashboard")
         # The robot's drive

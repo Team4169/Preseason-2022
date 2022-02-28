@@ -8,7 +8,7 @@ import wpilib
 
 # Motors
 kLeftMotor1Port = 8
-kLeftMotor2Port = 12
+kLeftMotor2Port = 2
 kRightMotor1Port = 10
 kRightMotor2Port = 6
 
