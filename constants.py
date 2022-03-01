@@ -13,8 +13,8 @@ kRightMotor1Port = 10
 kRightMotor2Port = 6
 
 # Encoders
-# kLeftEncoderPorts = (0, 1)
-# kRightEncoderPorts = (2, 3)
+kLeftEncoderPorts = (0, 1)
+kRightEncoderPorts = (2, 3)
 kLeftEncoderReversed = False
 kRightEncoderReversed = True
 

@@ -8,12 +8,11 @@
 # on after that period of time. This can help you do more complex simulations
 # of your robot code without too much extra effort.
 #
-
 import wpilib
 import wpilib.simulation
 from wpimath.system import LinearSystemId
 from wpimath.system.plant import DCMotor
-
+from robot import MyRobot
 import constants
 
 from pyfrc.physics.core import PhysicsInterface
@@ -26,14 +25,13 @@ class PhysicsEngine:
     realistic, but it's good enough to illustrate the point
     """
 
-    def __init__(self, physics_controller: PhysicsInterface):
+    def __init__(self, physics_controller: PhysicsInterface, robot: "MyRobot"):
 
         self.physics_controller = physics_controller
 
         # Motors
         self.l_motor = wpilib.simulation.PWMSim(1)
         self.r_motor = wpilib.simulation.PWMSim(2)
-
         self.system = LinearSystemId.identifyDrivetrainSystem(1.98, 0.2, 1.5, 0.3)
         self.drivesim = wpilib.simulation.DifferentialDrivetrainSim(
             self.system,
@@ -42,13 +40,17 @@ class PhysicsEngine:
             constants.kGearingRatio,
             constants.kWheelRadius,
         )
-
-        self.leftEncoderSim = wpilib.simulation.EncoderSim.createForChannel(
-            constants.kLeftEncoderPorts[0]
-        )
-        self.rightEncoderSim = wpilib.simulation.EncoderSim.createForChannel(
-            constants.kRightEncoderPorts[0]
-        )
+        # print()
+        # robot.container.drive.sd.putValue("simcollection",robot.container.drive.left1.getSimCollection())
+        self.leftEncoderSim = robot.container.drive.left1.getSimCollection()
+        self.rightEncoderSim = robot.container.drive.right1.getSimCollection()
+        # self.leftEncoderSim = wpilib.simulation.EncoderSim.createForChannel(
+        #     constants.kLeftEncoderPorts[0]
+        # )
+        # wpilib.simulation.EncoderSim.cou
+        # self.rightEncoderSim = wpilib.simulation.EncoderSim().createForChannel(
+        #     constants.kRightEncoderPorts[0]
+        # )
 
     def update_sim(self, now: float, tm_diff: float) -> None:
         """
@@ -67,10 +69,16 @@ class PhysicsEngine:
         voltage = wpilib.RobotController.getInputVoltage()
         self.drivesim.setInputs(l_motor * voltage, r_motor * voltage)
         self.drivesim.update(tm_diff)
-
-        self.leftEncoderSim.setDistance(self.drivesim.getLeftPosition() * 39.37)
-        self.leftEncoderSim.setRate(self.drivesim.getLeftVelocity() * 39.37)
-        self.rightEncoderSim.setDistance(self.drivesim.getRightPosition() * 39.37)
-        self.rightEncoderSim.setRate(self.drivesim.getRightVelocity() * 39.37)
+        print("ayo")
+        print(self.drivesim.getLeftPosition())
+        print()
+        self.leftEncoderSim.setQuadratureRawPosition(int(self.drivesim.getLeftPosition() * 39.37))
+        self.rightEncoderSim.setQuadratureRawPosition(int(self.drivesim.getRightPosition() * 39.37))
+        self.leftEncoderSim.setQuadratureVelocity(int(self.drivesim.getLeftVelocity() * 39.37))
+        self.rightEncoderSim.setQuadratureVelocity(int(self.drivesim.getRightVelocity() * 39.37))
+        # self.leftEncoderSim.setDistance(self.drivesim.getLeftPosition() * 39.37)
+        # self.leftEncoderSim.setRate(self.drivesim.getLeftVelocity() * 39.37)
+        # self.rightEncoderSim.setDistance(self.drivesim.getRightPosition() * 39.37)
+        # self.rightEncoderSim.setRate(self.drivesim.getRightVelocity() * 39.37)
 
         self.physics_controller.field.setRobotPose(self.drivesim.getPose())
