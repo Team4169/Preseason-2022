@@ -18,7 +18,7 @@ class ComplexAuto(commands2.SequentialCommandGroup):
             MoveCommand(3, 0, drive),
             MoveCommand(0, 90, drive),
             MoveCommand(3, 0, drive),
-            MoveCommand(9, 180, drive),
+            MoveCommand(0, 180, drive),
             # DriveDistance(
             #     constants.kAutoDriveDistanceInches, constants.kAutoDriveSpeed, drive
             # ),

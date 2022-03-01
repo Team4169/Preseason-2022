@@ -11,7 +11,9 @@ class MoveCommand(commands2.CommandBase):
         self.drive = drive
         self.distance = distance * self.drive.tpf
         self.heading = heading
-        self.goal_threshold_ticks = 20 # I believe 50 ticks per second, confirm.
+        print("distance goal", distance)
+        print("turn goal", heading)
+        self.goal_threshold_ticks = 100 # I believe 50 ticks per second, confirm.
         self.addRequirements(drive)
 
 
@@ -23,9 +25,13 @@ class MoveCommand(commands2.CommandBase):
         self.drive.turnController.setSetpoint(self.heading)
 
     def execute(self) -> None:
+        self.drive.sd.putValue("distance goal", self.distance)
+        self.drive.sd.putValue("turn goal", self.heading)
         if self.distance:
-            drivespeed = self.drive.driveController.calculate(self.drive.getAverageEncoderDistance(), self.distance)
+            drivespeed = self.drive.driveController.calculate(self.drive.getAverageEncoderTicks(), self.distance)
+            self.drive.sd.putValue("calculated drive speed",drivespeed)
             drivespeed = self.drive.validateDriveSpeed(drivespeed)
+            self.drive.sd.putValue("final calculated drive speed",drivespeed)
         else:
             drivespeed = 0
         turnspeed = self.drive.turnController.calculate(self.drive.gyro.getYaw(), self.heading)
@@ -40,6 +46,7 @@ class MoveCommand(commands2.CommandBase):
             self.in_threshold += 1
         else:
             self.in_threshold = 0
+        self.drive.sd.putValue("self.in_threshold", self.in_threshold)
         if self.in_threshold > self.goal_threshold_ticks:
             return True
         return False

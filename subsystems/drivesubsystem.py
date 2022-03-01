@@ -89,6 +89,12 @@ class DriveSubsystem(commands2.SubsystemBase):
         self.sd.putValue("Right Encoder Value", self.right2.getSelectedSensorPosition())
         return (self.left1.getSelectedSensorPosition() + self.right2.getSelectedSensorPosition()) / 2.0 * 12 / 924
 
+    def getAverageEncoderTicks(self) -> float:
+        """Gets the average distance of the TWO encoders."""
+        self.sd.putValue("Left Encoder Value", self.left1.getSelectedSensorPosition())
+        self.sd.putValue("Right Encoder Value", self.right2.getSelectedSensorPosition())
+        return (self.left1.getSelectedSensorPosition() + self.right2.getSelectedSensorPosition()) / -2.0
+
     def setMaxOutput(self, maxOutput: float):
         """
         Sets the max output of the drive. Useful for scaling the
