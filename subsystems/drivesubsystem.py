@@ -4,7 +4,8 @@ import wpilib.drive
 import ctre
 import constants
 from networktables import NetworkTables
-
+import wpimath.controller
+import navx
 
 class DriveSubsystem(commands2.SubsystemBase):
     def __init__(self) -> None:
@@ -14,7 +15,32 @@ class DriveSubsystem(commands2.SubsystemBase):
         self.left2 = ctre.WPI_TalonSRX(constants.kLeftMotor2Port)
         self.right1 = ctre.WPI_TalonSRX(constants.kRightMotor1Port)
         self.right2 = ctre.WPI_TalonSRX(constants.kRightMotor2Port)
+
+        self.tpf = -924
+        self.maxDriveSpeed = 0.4
+        self.maxTurnSpeed = 0.5
+
+        # smartdashboard
         self.sd = NetworkTables.getTable("SmartDashboard")
+
+        # Create PID Controller for Turning
+        self.TurnkP = self.sd.getValue("TurnkP", 0.032)
+        self.TurnkI = self.sd.getValue("TurnkI", 0)
+        self.TurnkD = self.sd.getValue("TurnkD", 0)
+        self.turnController = wpimath.controller.PIDController(self.TurnkP, self.TurnkI, self.TurnkD)
+        self.turnController.enableContinuousInput(-180.0, 180.0)
+        self.turnController.setTolerance(2.0)
+
+        # Create PID Controller for Drive
+        self.DrivekP = self.sd.getValue("DrivekP", 0.03)
+        self.DrivekI = self.sd.getValue("DrivekI", 0.02)
+        self.DrivekD = self.sd.getValue("DrivekD", 0)
+        self.driveController = wpimath.controller.PIDController(self.DrivekP, self.DrivekI, self.DrivekD)
+        self.driveController.setTolerance(-0.1 * self.tpf)
+
+        # gyro
+        self.gyro = navx.AHRS.create_i2c(wpilib.I2C.Port.kMXP)
+
         # The robot's drive
         self.right1.setInverted(True)
         self.right2.setInverted(True)
@@ -69,3 +95,17 @@ class DriveSubsystem(commands2.SubsystemBase):
         drive to drive more slowly.
         """
         self.drive.setMaxOutput(maxOutput)
+
+    def validateDriveSpeed(self, speed):
+        if speed > self.maxDriveSpeed:
+            return self.maxDriveSpeed
+        if speed < -1 * self.maxDriveSpeed:
+            return -1 * self.maxDriveSpeed
+        return speed
+
+    def validateTurnSpeed(self, turnSpeed):
+        if turnSpeed > self.maxTurnSpeed:
+            return self.maxTurnSpeed
+        if turnSpeed < -1 * self.maxTurnSpeed:
+            return -1 * self.maxTurnSpeed
+        return turnSpeed
