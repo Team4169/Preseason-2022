@@ -13,7 +13,7 @@ class MoveCommand(commands2.CommandBase):
         self.heading = heading
         print("distance goal", distance)
         print("turn goal", heading)
-        self.goal_threshold_ticks = 100 # I believe 50 ticks per second, confirm.
+        self.goal_threshold_ticks = 25 # I believe 50 ticks per second, confirm.
         self.addRequirements(drive)
 
 
@@ -25,6 +25,7 @@ class MoveCommand(commands2.CommandBase):
         self.drive.turnController.setSetpoint(self.heading)
 
     def execute(self) -> None:
+        self.drive.sd.putValue("Gyro Yaw", self.drive.gyro.getYaw())
         self.drive.sd.putValue("distance goal", self.distance)
         self.drive.sd.putValue("turn goal", self.heading)
         if self.distance:
@@ -42,7 +43,8 @@ class MoveCommand(commands2.CommandBase):
         self.drive.arcadeDrive(0, 0)
 
     def isFinished(self) -> bool:
-        if self.drive.turnController.atSetpoint() and self.distance and self.drive.driveController.atSetpoint():
+        if self.drive.turnController.atSetpoint() and \
+                (not self.distance or (self.distance and self.drive.driveController.atSetpoint())):
             self.in_threshold += 1
         else:
             self.in_threshold = 0

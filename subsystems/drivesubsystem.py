@@ -39,7 +39,7 @@ class DriveSubsystem(commands2.SubsystemBase):
         self.driveController.setTolerance(-0.1 * self.tpf)
 
         # gyro
-        self.gyro = navx.AHRS.create_i2c(wpilib.I2C.Port.kMXP)
+        self.gyro = navx.AHRS(wpilib.SerialPort.Port.kUSB1)
 
         # The robot's drive
         self.right1.setInverted(True)
