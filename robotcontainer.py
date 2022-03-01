@@ -10,6 +10,7 @@ from commands.complexauto import ComplexAuto
 from commands.drivedistance import DriveDistance
 from commands.defaultdrive import DefaultDrive
 from commands.halvedrivespeed import HalveDriveSpeed
+from commands.lucautocommand import LucAutoCommand
 
 from subsystems.drivesubsystem import DriveSubsystem
 
@@ -41,12 +42,16 @@ class RobotContainer:
         # A complex auto routine that drives forward, and then drives backward.
         self.complexAuto = ComplexAuto(self.drive)
 
+        # A complex auto routine that drives forward, and then drives backward.
+        self.lucAutoCommand = LucAutoCommand(self.drive)
+
         # Chooser
         self.chooser = wpilib.SendableChooser()
 
         # Add commands to the autonomous command chooser
         self.chooser.setDefaultOption("Complex Auto", self.complexAuto)
         self.chooser.addOption("Simple Auto", self.simpleAuto)
+        self.chooser.addOption("Luc Auto", self.lucAutoCommand)
 
         # Put the chooser on the dashboard
         wpilib.SmartDashboard.putData("Autonomous", self.chooser)

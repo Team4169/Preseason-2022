@@ -29,7 +29,7 @@ class DriveSubsystem(commands2.SubsystemBase):
         self.TurnkD = self.sd.getValue("TurnkD", 0)
         self.turnController = wpimath.controller.PIDController(self.TurnkP, self.TurnkI, self.TurnkD)
         self.turnController.enableContinuousInput(-180.0, 180.0)
-        self.turnController.setTolerance(2.0)
+        self.turnController.setTolerance(10.0)
 
         # Create PID Controller for Drive
         self.DrivekP = self.sd.getValue("DrivekP", 0.03)
