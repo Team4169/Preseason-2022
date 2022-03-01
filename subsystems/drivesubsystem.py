@@ -17,7 +17,7 @@ class DriveSubsystem(commands2.SubsystemBase):
         self.right2 = ctre.WPI_TalonSRX(constants.kRightMotor2Port)
 
         self.tpf = -924
-        self.maxDriveSpeed = 0.4
+        self.maxDriveSpeed = 0.6
         self.maxTurnSpeed = 0.5
 
         # smartdashboard
@@ -32,9 +32,9 @@ class DriveSubsystem(commands2.SubsystemBase):
         self.turnController.setTolerance(10.0)
 
         # Create PID Controller for Drive
-        self.DrivekP = self.sd.getValue("DrivekP", 0.03)
+        self.DrivekP = self.sd.getValue("DrivekP", 0.02)
         self.DrivekI = self.sd.getValue("DrivekI", 0.02)
-        self.DrivekD = self.sd.getValue("DrivekD", 0)
+        self.DrivekD = self.sd.getValue("DrivekD", 0.0005)
         self.driveController = wpimath.controller.PIDController(self.DrivekP, self.DrivekI, self.DrivekD)
         self.driveController.setTolerance(-0.1 * self.tpf)
 
